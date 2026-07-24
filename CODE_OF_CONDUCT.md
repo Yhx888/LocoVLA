@@ -4,7 +4,7 @@
 
 ### Our Pledge
 
-We as members, contributors, and maintainers pledge to make participation in **Praxis** a harassment-free experience for everyone, regardless of age, body size, disability, ethnicity, gender identity and expression, level of experience, nationality, personal appearance, race, religion, or sexual identity and orientation.
+We as members, contributors, and maintainers pledge to make participation in **LocoVLA** a harassment-free experience for everyone, regardless of age, body size, disability, ethnicity, gender identity and expression, level of experience, nationality, personal appearance, race, religion, or sexual identity and orientation.
 
 ### Our Standards
 
@@ -33,7 +33,7 @@ This Code of Conduct is adapted from the [Contributor Covenant](https://www.cont
 
 ### 我们的承诺
 
-作为成员、贡献者和维护者，我们承诺让每个人参与 **Praxis** 的体验免受骚扰，无论其年龄、体型、身体健全与否、族裔、性别认同与表达、经验水平、国籍、外貌、种族、宗教信仰、性取向如何。
+作为成员、贡献者和维护者，我们承诺让每个人参与 **LocoVLA** 的体验免受骚扰，无论其年龄、体型、身体健全与否、族裔、性别认同与表达、经验水平、国籍、外貌、种族、宗教信仰、性取向如何。
 
 ### 我们的准则
 

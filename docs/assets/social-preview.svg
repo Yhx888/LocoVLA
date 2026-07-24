@@ -49,7 +49,7 @@
   </g>
 
   <!-- 标题 -->
-  <text x="640" y="418" text-anchor="middle" fill="url(#title)" font-size="118" font-weight="700" letter-spacing="3">Praxis</text>
+  <text x="640" y="418" text-anchor="middle" fill="url(#title)" font-size="118" font-weight="700" letter-spacing="3">LocoVLA</text>
   <text x="640" y="462" text-anchor="middle" fill="#aab6e0" font-size="27" font-weight="500">From Balance Control to Vision-Language-Action</text>
   <text x="640" y="496" text-anchor="middle" fill="#6b76a8" font-size="19">具身运动智能 · Upkie 轮足机器人 + MuJoCo</text>
 

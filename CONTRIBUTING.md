@@ -1,8 +1,8 @@
-# Contributing to Praxis · 参与贡献
+# Contributing to LocoVLA · 参与贡献
 
-Thanks for your interest in **Praxis**! Contributions of all kinds are welcome — bug reports, fixes, new lessons, docs, and tests.
+Thanks for your interest in **LocoVLA**! Contributions of all kinds are welcome — bug reports, fixes, new lessons, docs, and tests.
 
-感谢你对 **Praxis** 的关注！欢迎任何形式的贡献 —— 缺陷报告、修复、新课程、文档和测试。
+感谢你对 **LocoVLA** 的关注！欢迎任何形式的贡献 —— 缺陷报告、修复、新课程、文档和测试。
 
 ---
 

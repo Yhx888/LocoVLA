@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="docs/assets/banner.svg" alt="Praxis — From Balance Control to Vision-Language-Action" width="880">
+<img src="docs/assets/banner.svg" alt="LocoVLA — From Balance Control to Vision-Language-Action" width="880">
 
-# Praxis
+# LocoVLA
 
 ### From Balance Control to Vision-Language-Action
 
@@ -10,13 +10,13 @@
 
 *一套面向**具身运动智能**的开源课程与框架 —— 以 Upkie 轮足机器人 + MuJoCo 仿真为教学载体。*
 
-[![CI](https://github.com/Yhx888/praxis/actions/workflows/ci.yml/badge.svg)](https://github.com/Yhx888/praxis/actions/workflows/ci.yml)
+[![CI](https://github.com/Yhx888/locovla/actions/workflows/ci.yml/badge.svg)](https://github.com/Yhx888/locovla/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![MuJoCo](https://img.shields.io/badge/Simulator-MuJoCo-6f42c1)](https://mujoco.org/)
 [![C++ · ROS 2](https://img.shields.io/badge/Deploy-C%2B%2B%20%C2%B7%20ROS%202-22314E)](cpp/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#contributing--参与贡献)
-[![GitHub stars](https://img.shields.io/github/stars/Yhx888/praxis?style=social)](https://github.com/Yhx888/praxis/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/Yhx888/locovla?style=social)](https://github.com/Yhx888/locovla/stargazers)
 
 **[English](#english) · [简体中文](#简体中文)**
 
@@ -26,7 +26,7 @@
 
 <div align="center">
 
-<img src="docs/assets/dashboard-overview.png" alt="Praxis interactive dashboard — progress overview" width="900">
+<img src="docs/assets/dashboard-overview.png" alt="LocoVLA interactive dashboard — progress overview" width="900">
 
 <em>Interactive experiment bench — progress, stage evidence &amp; per-lesson acceptance · 交互式实验台：进度总览、阶段证据与逐关验收</em>
 
@@ -39,13 +39,13 @@
 
 <div align="center">
 
-<img src="docs/assets/dashboard-lesson.png" alt="Praxis lesson view with runnable tasks" width="900">
+<img src="docs/assets/dashboard-lesson.png" alt="LocoVLA lesson view with runnable tasks" width="900">
 
 <em>Lesson view — objectives, prerequisites, runnable tasks &amp; evidence · 关卡详情：学习目标、前置关卡、可运行任务与证据</em>
 
 <br/><br/>
 
-<img src="docs/assets/dashboard-mobile.png" alt="Praxis dashboard on mobile" width="260">
+<img src="docs/assets/dashboard-mobile.png" alt="LocoVLA dashboard on mobile" width="260">
 
 <em>Responsive mobile layout · 移动端自适应布局</em>
 
@@ -59,7 +59,7 @@
 
 ## English
 
-**Praxis** (Greek *πρᾶξις*, "action") is a reproducibility-first, 58-lesson journey that takes you from high‑school math and zero programming all the way to a **job-ready embodied control system**. You build every layer of the stack on a physically correct digital twin: modeling → classical control → state estimation → reinforcement learning → vision‑language‑action → C++/ROS 2 deployment.
+**LocoVLA** (*Locomotion + Vision‑Language‑Action*) is a reproducibility-first, 58-lesson journey that takes you from high‑school math and zero programming all the way to a **job-ready embodied control system**. You build every layer of the stack on a physically correct digital twin: modeling → classical control → state estimation → reinforcement learning → vision‑language‑action → C++/ROS 2 deployment.
 
 Nothing is marked "done" by clicking through slides. Every milestone ships **fixed-seed, auditable evidence** — config, git commit, seed, metrics, pass criteria, raw logs, and plots.
 
@@ -177,7 +177,7 @@ Released under the [MIT License](LICENSE). Third-party assets under `assets/upki
 
 ## 简体中文
 
-**Praxis**（希腊语 *πρᾶξις*，意为"行动/实践"）是一套**以可复现证据为核心**的 58 关课程，带你从高中数学与零编程基础，一路走到**岗位级的具身控制系统**。你会在一个物理正确的数字样机上，亲手搭建每一层技术栈：建模 → 经典控制 → 状态估计 → 强化学习 → 视觉语言动作（VLA）→ C++/ROS 2 工程部署。
+**LocoVLA**（*Locomotion + Vision‑Language‑Action*，运动控制 + 视觉语言动作）是一套**以可复现证据为核心**的 58 关课程，带你从高中数学与零编程基础，一路走到**岗位级的具身控制系统**。你会在一个物理正确的数字样机上，亲手搭建每一层技术栈：建模 → 经典控制 → 状态估计 → 强化学习 → 视觉语言动作（VLA）→ C++/ROS 2 工程部署。
 
 课程不靠"看完幻灯片"来判定完成。每个里程碑都会产出**固定随机种子、可审查的证据** —— 配置、Git commit、seed、指标、通过条件、原始日志和图表。
 
