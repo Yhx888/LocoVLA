@@ -1,64 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640" font-family="'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0a0f24"/>
-      <stop offset="0.55" stop-color="#141a3d"/>
-      <stop offset="1" stop-color="#20164a"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d1d1f"/>
+      <stop offset="1" stop-color="#000000"/>
     </linearGradient>
-    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#e9f0ff"/>
-      <stop offset="1" stop-color="#8fb4ff"/>
-    </linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#22d3ee"/>
-      <stop offset="1" stop-color="#a78bfa"/>
+    <linearGradient id="title" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#c7c7cc"/>
     </linearGradient>
   </defs>
 
   <rect width="1280" height="640" fill="url(#bg)"/>
 
-  <!-- 蓝图网格 -->
-  <g stroke="#3a4a8c" stroke-width="1" opacity="0.10">
-    <line x1="0" y1="128" x2="1280" y2="128"/>
-    <line x1="0" y1="256" x2="1280" y2="256"/>
-    <line x1="0" y1="384" x2="1280" y2="384"/>
-    <line x1="0" y1="512" x2="1280" y2="512"/>
-    <line x1="160" y1="0" x2="160" y2="640"/>
-    <line x1="320" y1="0" x2="320" y2="640"/>
-    <line x1="960" y1="0" x2="960" y2="640"/>
-    <line x1="1120" y1="0" x2="1120" y2="640"/>
-  </g>
-
-  <!-- 四角细边框 -->
-  <g fill="none" stroke="url(#accent)" stroke-width="2" opacity="0.5" stroke-linecap="round" stroke-linejoin="round">
-    <polyline points="56,104 56,56 104,56"/>
-    <polyline points="1224,104 1224,56 1176,56"/>
-    <polyline points="56,536 56,584 104,584"/>
-    <polyline points="1224,536 1224,584 1176,584"/>
-  </g>
-
   <!-- eyebrow 小字 -->
-  <text x="640" y="142" text-anchor="middle" fill="#7c88bf" font-size="16" font-weight="600" letter-spacing="5">REPRODUCIBILITY-FIRST OPEN CURRICULUM</text>
+  <text x="640" y="162" text-anchor="middle" fill="#86868b" font-size="15" font-weight="600" letter-spacing="5">AN OPEN CURRICULUM FOR EMBODIED AI</text>
 
   <!-- 主字标 -->
-  <text x="640" y="302" text-anchor="middle" fill="url(#title)" font-size="166" font-weight="700" letter-spacing="4">LocoVLA</text>
-
-  <!-- 字标下渐变短横线 -->
-  <rect x="580" y="332" width="120" height="5" rx="2.5" fill="url(#accent)"/>
+  <text x="640" y="312" text-anchor="middle" fill="url(#title)" font-size="168" font-weight="600" letter-spacing="-2">LocoVLA</text>
 
   <!-- 副标题 -->
-  <text x="640" y="394" text-anchor="middle" fill="#aeb9e2" font-size="30" font-weight="500">From Balance Control to Vision-Language-Action</text>
-  <text x="640" y="434" text-anchor="middle" fill="#7a86bd" font-size="21">具身运动智能 · Upkie 轮足机器人 + MuJoCo 仿真</text>
+  <text x="640" y="384" text-anchor="middle" fill="#a1a1a6" font-size="32" font-weight="400">From Balance Control to Vision-Language-Action</text>
+  <text x="640" y="422" text-anchor="middle" fill="#6e6e73" font-size="20" font-weight="400">具身运动智能 · 从平衡控制到视觉语言动作</text>
 
-  <!-- 能力管线胶囊 -->
-  <g font-size="18" font-weight="600" text-anchor="middle">
-    <rect x="238" y="468" width="210" height="44" rx="22" fill="none" stroke="#22d3ee" stroke-width="1.6" opacity="0.85"/>
-    <text x="343" y="496" fill="#7fe6f4">Classical Control</text>
-    <text x="468" y="496" fill="#8aa0d8" font-size="19">→</text>
-    <rect x="488" y="468" width="257" height="44" rx="22" fill="none" stroke="#8aa0f0" stroke-width="1.6" opacity="0.85"/>
-    <text x="616" y="496" fill="#b7c4f5">Reinforcement Learning</text>
-    <text x="765" y="496" fill="#8aa0d8" font-size="19">→</text>
-    <rect x="785" y="468" width="257" height="44" rx="22" fill="none" stroke="#a78bfa" stroke-width="1.6" opacity="0.9"/>
-    <text x="914" y="496" fill="#c9b6fb">Vision-Language-Action</text>
-  </g>
+  <!-- 能力管线（克制的一行分隔点文字） -->
+  <text x="640" y="486" text-anchor="middle" fill="#86868b" font-size="18" font-weight="500" letter-spacing="2">Classical Control&#160;&#160;·&#160;&#160;Reinforcement Learning&#160;&#160;·&#160;&#160;Vision-Language-Action</text>
 </svg>
