@@ -31,7 +31,7 @@
 
 <img src="docs/assets/dashboard-overview.png" alt="LocoVLA interactive dashboard — progress overview" width="900">
 
-<em>Interactive experiment bench — progress, stage evidence &amp; per-lesson acceptance · 交互式实验台：进度总览、阶段证据与逐关验收</em>
+<em>Interactive course dashboard — learning progress, stage roadmap &amp; per-stage acceptance · 交互式课程主页：学习进度、阶段路线与逐阶验收</em>
 
 </div>
 

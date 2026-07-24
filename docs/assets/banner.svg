@@ -1,74 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400" font-family="'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0a0f24"/>
-      <stop offset="0.55" stop-color="#141a3d"/>
-      <stop offset="1" stop-color="#20164a"/>
+      <stop offset="0" stop-color="#08131f"/>
+      <stop offset="0.55" stop-color="#0c1c30"/>
+      <stop offset="1" stop-color="#11273f"/>
     </linearGradient>
-    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#e9f0ff"/>
-      <stop offset="1" stop-color="#8fb4ff"/>
+    <linearGradient id="cool" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f2f5fa"/>
+      <stop offset="1" stop-color="#c9d4e6"/>
     </linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#22d3ee"/>
-      <stop offset="1" stop-color="#a78bfa"/>
+    <linearGradient id="warm" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffc16a"/>
+      <stop offset="1" stop-color="#ff6f61"/>
     </linearGradient>
   </defs>
 
-  <!-- 背景 -->
   <rect width="1200" height="400" fill="url(#bg)"/>
 
-  <!-- 蓝图网格 -->
-  <g stroke="#3a4a8c" stroke-width="1" opacity="0.14">
-    <line x1="0" y1="80" x2="1200" y2="80"/>
-    <line x1="0" y1="160" x2="1200" y2="160"/>
-    <line x1="0" y1="240" x2="1200" y2="240"/>
-    <line x1="0" y1="320" x2="1200" y2="320"/>
-    <line x1="120" y1="0" x2="120" y2="400"/>
-    <line x1="240" y1="0" x2="240" y2="400"/>
-    <line x1="360" y1="0" x2="360" y2="400"/>
-    <line x1="480" y1="0" x2="480" y2="400"/>
-  </g>
+  <!-- 冷暖两枚极简角标 -->
+  <line x1="60" y1="60" x2="110" y2="60" stroke="#5fd0e0" stroke-width="3" stroke-linecap="round" opacity="0.65"/>
+  <line x1="1140" y1="340" x2="1090" y2="340" stroke="#ff8a5c" stroke-width="3" stroke-linecap="round" opacity="0.65"/>
 
-  <!-- 左侧：轮足机器人线条图 -->
-  <g transform="translate(150 200)">
-    <!-- 控制曲线（俯仰响应） -->
-    <polyline points="-95,-120 -60,-150 -25,-95 10,-135 45,-108 80,-122"
-              fill="none" stroke="#22d3ee" stroke-width="2.5" opacity="0.55" stroke-linecap="round" stroke-linejoin="round"/>
-    <!-- 地面 -->
-    <line x1="-120" y1="118" x2="120" y2="118" stroke="#a78bfa" stroke-width="2" opacity="0.5"/>
-    <!-- 机身 -->
-    <rect x="-42" y="-70" width="84" height="88" rx="16" fill="none" stroke="url(#accent)" stroke-width="4"/>
-    <circle cx="-14" cy="-40" r="5" fill="#22d3ee"/>
-    <circle cx="14" cy="-40" r="5" fill="#22d3ee"/>
-    <line x1="-24" y1="-8" x2="24" y2="-8" stroke="#a78bfa" stroke-width="3" opacity="0.7"/>
-    <!-- 左腿 + 轮 -->
-    <polyline points="-28,18 -46,66 -60,92" fill="none" stroke="#22d3ee" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="-60" cy="102" r="18" fill="none" stroke="url(#accent)" stroke-width="4"/>
-    <circle cx="-60" cy="102" r="4" fill="#a78bfa"/>
-    <!-- 右腿 + 轮 -->
-    <polyline points="28,18 48,64 62,92" fill="none" stroke="#22d3ee" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="62" cy="102" r="18" fill="none" stroke="url(#accent)" stroke-width="4"/>
-    <circle cx="62" cy="102" r="4" fill="#a78bfa"/>
-    <!-- 视觉锥 -->
-    <polygon points="42,-56 118,-88 118,-24" fill="#22d3ee" opacity="0.12"/>
-    <polygon points="42,-56 118,-88 118,-24" fill="none" stroke="#22d3ee" stroke-width="1.5" opacity="0.5"/>
-  </g>
+  <!-- eyebrow 小字 -->
+  <text x="600" y="82" text-anchor="middle" fill="#7d8aa5" font-size="14" font-weight="600" letter-spacing="4">AN OPEN CURRICULUM FOR EMBODIED AI</text>
 
-  <!-- 右侧：标题与副标题 -->
-  <text x="360" y="176" fill="url(#title)" font-size="104" font-weight="700" letter-spacing="2">LocoVLA</text>
-  <text x="364" y="220" fill="#aab6e0" font-size="26" font-weight="500">From Balance Control to Vision-Language-Action</text>
-  <text x="364" y="252" fill="#6b76a8" font-size="18">具身运动智能 · 从平衡控制到视觉语言动作</text>
+  <!-- 主字标：Loco 冷白 · VLA 暖色 -->
+  <text x="600" y="196" text-anchor="middle" font-size="108" font-weight="600" letter-spacing="-2"><tspan fill="url(#cool)">Loco</tspan><tspan fill="url(#warm)">VLA</tspan></text>
 
-  <!-- 能力管线胶囊 -->
-  <g font-size="17" font-weight="600" text-anchor="middle">
-    <rect x="364" y="286" width="150" height="40" rx="20" fill="none" stroke="#22d3ee" stroke-width="1.6" opacity="0.85"/>
-    <text x="439" y="311" fill="#7fe6f4">Classical Control</text>
-    <text x="533" y="311" fill="#8aa0d8" font-size="18">→</text>
-    <rect x="552" y="286" width="205" height="40" rx="20" fill="none" stroke="#8aa0f0" stroke-width="1.6" opacity="0.85"/>
-    <text x="654" y="311" fill="#b7c4f5">Reinforcement Learning</text>
-    <text x="776" y="311" fill="#8aa0d8" font-size="18">→</text>
-    <rect x="795" y="286" width="230" height="40" rx="20" fill="none" stroke="#a78bfa" stroke-width="1.6" opacity="0.9"/>
-    <text x="910" y="311" fill="#c9b6fb">Vision-Language-Action</text>
-  </g>
+  <!-- 副标题 -->
+  <text x="600" y="244" text-anchor="middle" fill="#c3cbdd" font-size="24" font-weight="400">From Balance Control to Vision-Language-Action</text>
+  <text x="600" y="274" text-anchor="middle" fill="#7f8ba6" font-size="16" font-weight="400">具身运动智能 · 从平衡控制到视觉语言动作</text>
+
+  <!-- 能力管线：冷→暖 编码进阶路径 -->
+  <text x="600" y="326" text-anchor="middle" font-size="16" font-weight="500" letter-spacing="2"><tspan fill="#5fd0e0">Classical Control</tspan><tspan fill="#6b7590">&#160;&#160;·&#160;&#160;</tspan><tspan fill="#b9c2d8">Reinforcement Learning</tspan><tspan fill="#6b7590">&#160;&#160;·&#160;&#160;</tspan><tspan fill="#ffab5e">Vision-Language-Action</tspan></text>
 </svg>
