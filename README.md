@@ -13,13 +13,13 @@
 
 *一套面向**具身运动智能**的开源课程与框架 —— 以 Upkie 轮足机器人 + MuJoCo 仿真为教学载体。*
 
-[![CI](https://github.com/Yhx888/locovla/actions/workflows/ci.yml/badge.svg)](https://github.com/Yhx888/locovla/actions/workflows/ci.yml)
+[![CI](https://github.com/Yhx888/LocoVLA/actions/workflows/ci.yml/badge.svg)](https://github.com/Yhx888/LocoVLA/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![MuJoCo](https://img.shields.io/badge/Simulator-MuJoCo-6f42c1)](https://mujoco.org/)
 [![C++ · ROS 2](https://img.shields.io/badge/Deploy-C%2B%2B%20%C2%B7%20ROS%202-22314E)](cpp/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#contributing--参与贡献)
-[![GitHub stars](https://img.shields.io/github/stars/Yhx888/locovla?style=social)](https://github.com/Yhx888/locovla/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/Yhx888/LocoVLA?style=social)](https://github.com/Yhx888/LocoVLA/stargazers)
 
 **[English](#english) · [简体中文](#简体中文)**
 

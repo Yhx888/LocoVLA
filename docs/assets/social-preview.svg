@@ -27,9 +27,6 @@
   <!-- 主字标：Loco 冷白 · VLA 暖色 -->
   <text x="640" y="306" text-anchor="middle" font-size="168" font-weight="600" letter-spacing="-2"><tspan fill="url(#cool)">Loco</tspan><tspan fill="url(#warm)">VLA</tspan></text>
 
-  <!-- 字标下暖色短横线 -->
-  <rect x="575" y="334" width="130" height="4" rx="2" fill="url(#warm)"/>
-
   <!-- 副标题 -->
   <text x="640" y="392" text-anchor="middle" fill="#c3cbdd" font-size="32" font-weight="400">From Balance Control to Vision-Language-Action</text>
   <text x="640" y="430" text-anchor="middle" fill="#7f8ba6" font-size="20" font-weight="400">具身运动智能 · 从平衡控制到视觉语言动作</text>
