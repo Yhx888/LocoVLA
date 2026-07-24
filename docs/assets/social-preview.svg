@@ -38,27 +38,27 @@
   </g>
 
   <!-- eyebrow 小字 -->
-  <text x="640" y="212" text-anchor="middle" fill="#7c88bf" font-size="16" font-weight="600" letter-spacing="5">REPRODUCIBILITY-FIRST OPEN CURRICULUM</text>
+  <text x="640" y="142" text-anchor="middle" fill="#7c88bf" font-size="16" font-weight="600" letter-spacing="5">REPRODUCIBILITY-FIRST OPEN CURRICULUM</text>
 
   <!-- 主字标 -->
-  <text x="640" y="368" text-anchor="middle" fill="url(#title)" font-size="166" font-weight="700" letter-spacing="4">LocoVLA</text>
+  <text x="640" y="302" text-anchor="middle" fill="url(#title)" font-size="166" font-weight="700" letter-spacing="4">LocoVLA</text>
 
   <!-- 字标下渐变短横线 -->
-  <rect x="580" y="398" width="120" height="5" rx="2.5" fill="url(#accent)"/>
+  <rect x="580" y="332" width="120" height="5" rx="2.5" fill="url(#accent)"/>
 
   <!-- 副标题 -->
-  <text x="640" y="458" text-anchor="middle" fill="#aeb9e2" font-size="30" font-weight="500">From Balance Control to Vision-Language-Action</text>
-  <text x="640" y="498" text-anchor="middle" fill="#7a86bd" font-size="21">具身运动智能 · Upkie 轮足机器人 + MuJoCo 仿真</text>
+  <text x="640" y="394" text-anchor="middle" fill="#aeb9e2" font-size="30" font-weight="500">From Balance Control to Vision-Language-Action</text>
+  <text x="640" y="434" text-anchor="middle" fill="#7a86bd" font-size="21">具身运动智能 · Upkie 轮足机器人 + MuJoCo 仿真</text>
 
   <!-- 能力管线胶囊 -->
   <g font-size="18" font-weight="600" text-anchor="middle">
-    <rect x="295" y="556" width="158" height="42" rx="21" fill="none" stroke="#22d3ee" stroke-width="1.6" opacity="0.85"/>
-    <text x="374" y="583" fill="#7fe6f4">Classical Control</text>
-    <text x="473" y="583" fill="#8aa0d8" font-size="19">→</text>
-    <rect x="493" y="556" width="214" height="42" rx="21" fill="none" stroke="#8aa0f0" stroke-width="1.6" opacity="0.85"/>
-    <text x="600" y="583" fill="#b7c4f5">Reinforcement Learning</text>
-    <text x="727" y="583" fill="#8aa0d8" font-size="19">→</text>
-    <rect x="747" y="556" width="238" height="42" rx="21" fill="none" stroke="#a78bfa" stroke-width="1.6" opacity="0.9"/>
-    <text x="866" y="583" fill="#c9b6fb">Vision-Language-Action</text>
+    <rect x="238" y="468" width="210" height="44" rx="22" fill="none" stroke="#22d3ee" stroke-width="1.6" opacity="0.85"/>
+    <text x="343" y="496" fill="#7fe6f4">Classical Control</text>
+    <text x="468" y="496" fill="#8aa0d8" font-size="19">→</text>
+    <rect x="488" y="468" width="257" height="44" rx="22" fill="none" stroke="#8aa0f0" stroke-width="1.6" opacity="0.85"/>
+    <text x="616" y="496" fill="#b7c4f5">Reinforcement Learning</text>
+    <text x="765" y="496" fill="#8aa0d8" font-size="19">→</text>
+    <rect x="785" y="468" width="257" height="44" rx="22" fill="none" stroke="#a78bfa" stroke-width="1.6" opacity="0.9"/>
+    <text x="914" y="496" fill="#c9b6fb">Vision-Language-Action</text>
   </g>
 </svg>
