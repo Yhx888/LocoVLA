@@ -1,0 +1,48 @@
+name: 🐛 Bug report · 缺陷报告
+description: Report a problem to help us improve · 报告一个问题以帮助我们改进
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report! · 感谢你花时间提交缺陷报告！
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened? · 发生了什么？
+      description: A clear description of the bug. · 清晰描述这个缺陷。
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce · 复现步骤
+      description: Include the exact command and seed if possible. · 尽量给出确切命令与 seed。
+      placeholder: |
+        1. python scripts/06_train_ppo_standing.py --seed 0 ...
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior · 期望行为
+    validations:
+      required: false
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment · 运行环境
+      description: OS, Python version, and how you installed dependencies. · 操作系统、Python 版本、依赖安装方式。
+      placeholder: |
+        - OS: Windows 11 / Ubuntu 22.04
+        - Python: 3.11
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / traceback · 日志 / 报错栈
+      render: shell
+    validations:
+      required: false

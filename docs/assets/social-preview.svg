@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0f24"/>
+      <stop offset="0.55" stop-color="#141a3d"/>
+      <stop offset="1" stop-color="#20164a"/>
+    </linearGradient>
+    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e9f0ff"/>
+      <stop offset="1" stop-color="#8fb4ff"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#a78bfa"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="640" fill="url(#bg)"/>
+
+  <!-- 蓝图网格 -->
+  <g stroke="#3a4a8c" stroke-width="1" opacity="0.13">
+    <line x1="0" y1="128" x2="1280" y2="128"/>
+    <line x1="0" y1="256" x2="1280" y2="256"/>
+    <line x1="0" y1="384" x2="1280" y2="384"/>
+    <line x1="0" y1="512" x2="1280" y2="512"/>
+    <line x1="160" y1="0" x2="160" y2="640"/>
+    <line x1="320" y1="0" x2="320" y2="640"/>
+    <line x1="1120" y1="0" x2="1120" y2="640"/>
+    <line x1="960" y1="0" x2="960" y2="640"/>
+  </g>
+
+  <!-- 轮足机器人 -->
+  <g transform="translate(640 158)">
+    <polyline points="-95,-118 -60,-148 -25,-95 10,-133 45,-106 80,-120"
+              fill="none" stroke="#22d3ee" stroke-width="2.5" opacity="0.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="-120" y1="118" x2="120" y2="118" stroke="#a78bfa" stroke-width="2" opacity="0.45"/>
+    <rect x="-42" y="-70" width="84" height="88" rx="16" fill="none" stroke="url(#accent)" stroke-width="4"/>
+    <circle cx="-14" cy="-40" r="5" fill="#22d3ee"/>
+    <circle cx="14" cy="-40" r="5" fill="#22d3ee"/>
+    <line x1="-24" y1="-8" x2="24" y2="-8" stroke="#a78bfa" stroke-width="3" opacity="0.7"/>
+    <polyline points="-28,18 -46,66 -60,92" fill="none" stroke="#22d3ee" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="-60" cy="102" r="18" fill="none" stroke="url(#accent)" stroke-width="4"/>
+    <circle cx="-60" cy="102" r="4" fill="#a78bfa"/>
+    <polyline points="28,18 48,64 62,92" fill="none" stroke="#22d3ee" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="62" cy="102" r="18" fill="none" stroke="url(#accent)" stroke-width="4"/>
+    <circle cx="62" cy="102" r="4" fill="#a78bfa"/>
+    <polygon points="42,-56 118,-88 118,-24" fill="#22d3ee" opacity="0.12"/>
+    <polygon points="42,-56 118,-88 118,-24" fill="none" stroke="#22d3ee" stroke-width="1.5" opacity="0.5"/>
+  </g>
+
+  <!-- 标题 -->
+  <text x="640" y="418" text-anchor="middle" fill="url(#title)" font-size="118" font-weight="700" letter-spacing="3">Praxis</text>
+  <text x="640" y="462" text-anchor="middle" fill="#aab6e0" font-size="27" font-weight="500">From Balance Control to Vision-Language-Action</text>
+  <text x="640" y="496" text-anchor="middle" fill="#6b76a8" font-size="19">具身运动智能 · Upkie 轮足机器人 + MuJoCo</text>
+
+  <!-- 能力管线胶囊 -->
+  <g font-size="18" font-weight="600" text-anchor="middle">
+    <rect x="360" y="534" width="158" height="42" rx="21" fill="none" stroke="#22d3ee" stroke-width="1.6" opacity="0.85"/>
+    <text x="439" y="561" fill="#7fe6f4">Classical Control</text>
+    <text x="538" y="561" fill="#8aa0d8" font-size="19">→</text>
+    <rect x="558" y="534" width="214" height="42" rx="21" fill="none" stroke="#8aa0f0" stroke-width="1.6" opacity="0.85"/>
+    <text x="665" y="561" fill="#b7c4f5">Reinforcement Learning</text>
+    <text x="792" y="561" fill="#8aa0d8" font-size="19">→</text>
+    <rect x="812" y="534" width="238" height="42" rx="21" fill="none" stroke="#a78bfa" stroke-width="1.6" opacity="0.9"/>
+    <text x="931" y="561" fill="#c9b6fb">Vision-Language-Action</text>
+  </g>
+</svg>

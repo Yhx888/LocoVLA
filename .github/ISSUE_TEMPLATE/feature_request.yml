@@ -1,0 +1,23 @@
+name: ✨ Feature request · 功能建议
+description: Suggest a new feature, lesson, or improvement · 建议新功能、新课程或改进
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / motivation · 问题 / 动机
+      description: What problem does this solve? · 这个建议解决了什么问题？
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution · 建议方案
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered · 考虑过的替代方案
+    validations:
+      required: false

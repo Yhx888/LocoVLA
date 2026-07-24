@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/assets/banner.svg" alt="Praxis — From Balance Control to Vision-Language-Action" width="880">
+
 # Praxis
 
 ### From Balance Control to Vision-Language-Action
@@ -19,6 +21,37 @@
 **[English](#english) · [简体中文](#简体中文)**
 
 </div>
+
+---
+
+<div align="center">
+
+<img src="docs/assets/dashboard-overview.png" alt="Praxis interactive dashboard — progress overview" width="900">
+
+<em>Interactive experiment bench — progress, stage evidence &amp; per-lesson acceptance · 交互式实验台：进度总览、阶段证据与逐关验收</em>
+
+</div>
+
+<details>
+<summary>📸 <b>More screenshots · 更多截图</b></summary>
+
+<br/>
+
+<div align="center">
+
+<img src="docs/assets/dashboard-lesson.png" alt="Praxis lesson view with runnable tasks" width="900">
+
+<em>Lesson view — objectives, prerequisites, runnable tasks &amp; evidence · 关卡详情：学习目标、前置关卡、可运行任务与证据</em>
+
+<br/><br/>
+
+<img src="docs/assets/dashboard-mobile.png" alt="Praxis dashboard on mobile" width="260">
+
+<em>Responsive mobile layout · 移动端自适应布局</em>
+
+</div>
+
+</details>
 
 ---
 
