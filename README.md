@@ -6,6 +6,9 @@
 
 ### From Balance Control to Vision-Language-Action
 
+**Learn robot control → RL → VLA, one runnable lesson at a time.**<br/>
+**从平衡控制到视觉语言动作，一次一节可运行的课，练出岗位级具身控制能力。**
+
 *An open curriculum & framework for **embodied locomotion intelligence** — built on the [Upkie](https://github.com/upkie/upkie) wheeled-biped robot and [MuJoCo](https://mujoco.org/).*
 
 *一套面向**具身运动智能**的开源课程与框架 —— 以 Upkie 轮足机器人 + MuJoCo 仿真为教学载体。*
