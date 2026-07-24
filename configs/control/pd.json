@@ -1,0 +1,12 @@
+{
+  "pd": {"kp": {"default": 20.0}, "kd": {"default": 1.0}, "torque_limit": {"default": 10.0}},
+  "wheel_balancer": {
+    "standup_duration": 0.2,
+    "wheel_damping_gain": 0.0,
+    "pitch_gain": 3.0,
+    "pitch_rate_gain": 0.8,
+    "position_gain": 2.0,
+    "forward_velocity_gain": 0.8,
+    "torque_filter_alpha": 0.05
+  }
+}

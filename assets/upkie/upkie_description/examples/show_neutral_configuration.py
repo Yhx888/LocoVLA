@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2024 Inria
+#
+# /// script
+# dependencies = ["meshcat", "pin", "upkie_description"]
+# ///
+
+"""Load Upkie in Pinocchio and display its visual model in MeshCat."""
+
+import argparse
+import time
+
+import pinocchio as pin
+from pinocchio.visualize import MeshcatVisualizer
+
+import upkie_description
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--variant",
+        help="variant of the robot description to load",
+    )
+    args = parser.parse_args()
+
+    label = "robot"
+    if args.variant:
+        label = f"'{args.variant}' variant of the robot"
+    robot = upkie_description.load_in_pinocchio(
+        # NB: we add a free-flyer so that the torso mass is included
+        root_joint=pin.JointModelFreeFlyer(),
+        variant=args.variant,
+    )
+    robot.setVisualizer(MeshcatVisualizer())
+    robot.initViewer(open=True)
+    robot.loadViewerModel()
+    robot.display(robot.q0)
+
+    print("Press Ctrl-C to exit.")
+    dt = 1.0  # seconds
+    while True:
+        robot.display(robot.q0)
+        time.sleep(dt)

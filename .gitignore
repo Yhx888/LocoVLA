@@ -1,0 +1,93 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+*.egg-info/
+*.egg
+
+# 虚拟环境
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# pytest
+.pytest_cache/
+
+# 日志
+*.log
+
+# macOS
+.DS_Store
+
+# MuJoCo 日志
+*.mjlog
+MJDATA.TXT
+
+# 临时文件
+temp_*
+.playwright-cli/
+
+# 输出目录：只跟踪说明和占位文件
+outputs/logs/
+outputs/videos/
+outputs/checkpoints/
+outputs/tensorboard/
+*.mp4
+*.zip
+*.pt
+*.pth
+*.onnx
+outputs/model_audit/*.md
+outputs/model_audit/*.csv
+!outputs/model_audit/.gitkeep
+!outputs/logs/
+!outputs/logs/.gitkeep
+!outputs/videos/
+!outputs/videos/.gitkeep
+!outputs/checkpoints/
+!outputs/checkpoints/.gitkeep
+!outputs/tensorboard/
+!outputs/tensorboard/.gitkeep
+!outputs/plots/
+!outputs/plots/.gitkeep
+outputs/tensorboard/*
+!outputs/tensorboard/.gitkeep
+
+# 飞书 CLI 临时参数
+_lark_params_*.json
+
+# git 本地拷贝
+assets/upkie/upkie_description/.git.localcopy/
+
+# AI 工具与会话缓存
+.claude/
+.reasonix/
+.superpowers/
+.trae/
+
+# WSL2 虚拟环境
+.venv-wsl/
+
+# C++ WSL2 构建输出
+cpp/build-wsl2/
+build-wsl2/
+
+# 根级日志目录
+log/
+
+# ROS2 工作空间构建产物（只忽略生成物，保留 src/scripts）
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/

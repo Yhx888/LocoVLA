@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 860">
+  <!-- 背景 -->
+  <rect x="0" y="0" width="800" height="860" fill="#f8f9fa" rx="12"/>
+
+  <!-- 标题 -->
+  <text x="400" y="42" text-anchor="middle" font-size="22" font-weight="bold" fill="#1a1a2e">课程学习路线图</text>
+  <line x1="280" y1="54" x2="520" y2="54" stroke="#1a1a2e" stroke-width="2" opacity="0.3"/>
+
+  <!-- ========== 第1层：基础层 ========== -->
+  <g transform="translate(0, 80)">
+    <!-- 层背景 -->
+    <rect x="30" y="0" width="740" height="140" fill="#e3f2fd" rx="10" stroke="#1976d2" stroke-width="1.5"/>
+    <!-- 层标题 -->
+    <rect x="30" y="0" width="740" height="36" fill="#1976d2" rx="10"/>
+    <rect x="30" y="18" width="740" height="18" fill="#1976d2"/>
+    <text x="400" y="24" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff">🔧 基础层（Lesson 00-02）</text>
+    <!-- 三个模块 -->
+    <rect x="60" y="50" width="200" height="72" fill="#ffffff" rx="8" stroke="#90caf9" stroke-width="1"/>
+    <text x="160" y="78" text-anchor="middle" font-size="13" font-weight="bold" fill="#1565c0">环境搭建 &amp; 工具链</text>
+    <text x="160" y="100" text-anchor="middle" font-size="10" fill="#666">Python + MuJoCo + Git</text>
+
+    <rect x="300" y="50" width="200" height="72" fill="#ffffff" rx="8" stroke="#90caf9" stroke-width="1"/>
+    <text x="400" y="78" text-anchor="middle" font-size="13" font-weight="bold" fill="#1565c0">MuJoCo 仿真引擎</text>
+    <text x="400" y="100" text-anchor="middle" font-size="10" fill="#666">物理引擎 + 渲染器</text>
+
+    <rect x="540" y="50" width="200" height="72" fill="#ffffff" rx="8" stroke="#90caf9" stroke-width="1"/>
+    <text x="640" y="78" text-anchor="middle" font-size="13" font-weight="bold" fill="#1565c0">机器人模型理解</text>
+    <text x="640" y="100" text-anchor="middle" font-size="10" fill="#666">模型审计 + 参数映射</text>
+  </g>
+
+  <!-- 箭头 1→2 -->
+  <polyline points="400,220 400,250" stroke="#1976d2" stroke-width="2.5" fill="none"/>
+  <polygon points="394,248 400,262 406,248" fill="#1976d2"/>
+
+  <!-- ========== 第2层：控制层 ========== -->
+  <g transform="translate(0, 270)">
+    <rect x="30" y="0" width="740" height="140" fill="#e8f5e9" rx="10" stroke="#388e3c" stroke-width="1.5"/>
+    <rect x="30" y="0" width="740" height="36" fill="#388e3c" rx="10"/>
+    <rect x="30" y="18" width="740" height="18" fill="#388e3c"/>
+    <text x="400" y="24" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff">🎮 控制层（Lesson 03-04）</text>
+
+    <rect x="60" y="50" width="200" height="72" fill="#ffffff" rx="8" stroke="#a5d6a7" stroke-width="1"/>
+    <text x="160" y="76" text-anchor="middle" font-size="13" font-weight="bold" fill="#2e7d32">PD 控制</text>
+    <text x="160" y="96" text-anchor="middle" font-size="10" fill="#666">经典反馈控制</text>
+    <text x="160" y="112" text-anchor="middle" font-size="10" fill="#666">Kp + Kd 增益调节</text>
+
+    <rect x="300" y="50" width="200" height="72" fill="#ffffff" rx="8" stroke="#a5d6a7" stroke-width="1"/>
+    <text x="400" y="76" text-anchor="middle" font-size="13" font-weight="bold" fill="#2e7d32">LQR 控制</text>
+    <text x="400" y="96" text-anchor="middle" font-size="10" fill="#666">最优控制</text>
+    <text x="400" y="112" text-anchor="middle" font-size="10" fill="#666">Riccati 方程求解</text>
+
+    <rect x="540" y="50" width="200" height="72" fill="#ffffff" rx="8" stroke="#a5d6a7" stroke-width="1"/>
+    <text x="640" y="78" text-anchor="middle" font-size="13" font-weight="bold" fill="#2e7d32">控制接口设计</text>
+    <text x="640" y="100" text-anchor="middle" font-size="10" fill="#666">统一 action/obs 接口</text>
+  </g>
+
+  <!-- 箭头 2→3 -->
+  <polyline points="400,410 400,440" stroke="#388e3c" stroke-width="2.5" fill="none"/>
+  <polygon points="394,438 400,452 406,438" fill="#388e3c"/>
+
+  <!-- ========== 第3层：学习层 ========== -->
+  <g transform="translate(0, 460)">
+    <rect x="30" y="0" width="740" height="140" fill="#fff3e0" rx="10" stroke="#f57c00" stroke-width="1.5"/>
+    <rect x="30" y="0" width="740" height="36" fill="#f57c00" rx="10"/>
+    <rect x="30" y="18" width="740" height="18" fill="#f57c00"/>
+    <text x="400" y="24" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff">🧠 学习层（Lesson 05-06）</text>
+
+    <rect x="60" y="50" width="200" height="72" fill="#ffffff" rx="8" stroke="#ffcc80" stroke-width="1"/>
+    <text x="160" y="78" text-anchor="middle" font-size="13" font-weight="bold" fill="#e65100">Gymnasium 环境封装</text>
+    <text x="160" y="100" text-anchor="middle" font-size="10" fill="#666">标准 RL 接口</text>
+
+    <rect x="300" y="50" width="200" height="72" fill="#ffffff" rx="8" stroke="#ffcc80" stroke-width="1"/>
+    <text x="400" y="78" text-anchor="middle" font-size="13" font-weight="bold" fill="#e65100">PPO 强化学习</text>
+    <text x="400" y="100" text-anchor="middle" font-size="10" fill="#666">近端策略优化</text>
+
+    <rect x="540" y="50" width="200" height="72" fill="#ffffff" rx="8" stroke="#ffcc80" stroke-width="1"/>
+    <text x="640" y="78" text-anchor="middle" font-size="13" font-weight="bold" fill="#e65100">奖励函数设计</text>
+    <text x="640" y="100" text-anchor="middle" font-size="10" fill="#666">姿态 + 速度 + 能耗</text>
+  </g>
+
+  <!-- 箭头 3→4 -->
+  <polyline points="400,600 400,630" stroke="#f57c00" stroke-width="2.5" fill="none"/>
+  <polygon points="394,628 400,642 406,628" fill="#f57c00"/>
+
+  <!-- ========== 第4层：工程层 ========== -->
+  <g transform="translate(0, 650)">
+    <rect x="30" y="0" width="740" height="165" fill="#fce4ec" rx="10" stroke="#c62828" stroke-width="1.5"/>
+    <rect x="30" y="0" width="740" height="36" fill="#c62828" rx="10"/>
+    <rect x="30" y="18" width="740" height="18" fill="#c62828"/>
+    <text x="400" y="24" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff">⚙️ 工程层（Lesson 07-10）</text>
+
+    <rect x="50" y="50" width="155" height="98" fill="#ffffff" rx="8" stroke="#ef9a9a" stroke-width="1"/>
+    <text x="127" y="76" text-anchor="middle" font-size="12" font-weight="bold" fill="#b71c1c">鲁棒性</text>
+    <text x="127" y="96" text-anchor="middle" font-size="10" fill="#666">域随机化</text>
+    <text x="127" y="114" text-anchor="middle" font-size="10" fill="#666">Sim-to-Real</text>
+    <text x="127" y="132" text-anchor="middle" font-size="10" fill="#666">噪声/延迟/扰动</text>
+
+    <rect x="225" y="50" width="155" height="98" fill="#ffffff" rx="8" stroke="#ef9a9a" stroke-width="1"/>
+    <text x="302" y="76" text-anchor="middle" font-size="12" font-weight="bold" fill="#b71c1c">残差 RL</text>
+    <text x="302" y="96" text-anchor="middle" font-size="10" fill="#666">经典+学习</text>
+    <text x="302" y="114" text-anchor="middle" font-size="10" fill="#666">融合控制</text>
+    <text x="302" y="132" text-anchor="middle" font-size="10" fill="#666">策略评估</text>
+
+    <rect x="400" y="50" width="155" height="98" fill="#ffffff" rx="8" stroke="#ef9a9a" stroke-width="1"/>
+    <text x="477" y="78" text-anchor="middle" font-size="12" font-weight="bold" fill="#b71c1c">模型替换</text>
+    <text x="477" y="100" text-anchor="middle" font-size="10" fill="#666">配置化管理</text>
+
+    <rect x="575" y="50" width="165" height="98" fill="#ffffff" rx="8" stroke="#ef9a9a" stroke-width="1"/>
+    <text x="657" y="78" text-anchor="middle" font-size="12" font-weight="bold" fill="#b71c1c">高层指令接口</text>
+    <text x="657" y="100" text-anchor="middle" font-size="10" fill="#666">Command 模式</text>
+  </g>
+</svg>

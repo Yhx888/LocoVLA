@@ -1,0 +1,38 @@
+name: 课程质量检查
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: 安装系统依赖（无头渲染 + 中文字体）
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libegl1 libgl1-mesa-dri libgles2 libglfw3 libosmesa6 \
+            fonts-noto-cjk
+          sudo fc-cache -f
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+      - name: Python 编译检查
+        run: python -m compileall -q src scripts tests dashboard
+      - name: 课程事实漂移检查
+        run: python scripts/tools/check_course_facts.py
+      - name: 全量测试
+        env:
+          # MuJoCo 无头渲染：仅在 CI 步骤生效，不影响本地开窗口的 viewer。
+          MUJOCO_GL: egl
+          PYOPENGL_PLATFORM: egl
+        # 排除 rl_reference：SB3+torch 的 PPO 收敛阈值只在参考平台可逐位复现，
+        # 异构 CI 硬件上会伪失败。本地 pytest 默认仍全量运行并强制这些阈值。
+        run: pytest -q -m "not rl_reference"

@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520">
+  <!-- 背景 -->
+  <rect x="0" y="0" width="800" height="520" fill="#f8f9fa" rx="12"/>
+
+  <!-- 标题 -->
+  <text x="400" y="36" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a1a2e">Upkie 机器人模型结构</text>
+  <line x1="280" y1="48" x2="520" y2="48" stroke="#1a1a2e" stroke-width="1.5" opacity="0.25"/>
+
+  <!-- ===== 第0层: world ===== -->
+  <!-- world 到 base 的连接线 -->
+  <line x1="400" y1="78" x2="400" y2="108" stroke="#78909c" stroke-width="2"/>
+
+  <!-- world 节点 -->
+  <rect x="320" y="52" width="160" height="28" fill="#eceff1" rx="14" stroke="#78909c" stroke-width="1.5"/>
+  <text x="400" y="71" text-anchor="middle" font-size="13" font-weight="bold" fill="#546e7a">🌍 world</text>
+  <text x="490" y="71" font-size="10" fill="#90a4ae">固定基座</text>
+
+  <!-- ===== 第1层: base ===== -->
+  <!-- base 到 left/right hip 的连接线（倒Y型） -->
+  <line x1="400" y1="136" x2="400" y2="155" stroke="#1976d2" stroke-width="2"/>
+  <line x1="400" y1="155" x2="220" y2="180" stroke="#1976d2" stroke-width="2"/>
+  <line x1="400" y1="155" x2="580" y2="180" stroke="#1976d2" stroke-width="2"/>
+
+  <rect x="290" y="108" width="220" height="28" fill="#e3f2fd" rx="14" stroke="#1976d2" stroke-width="1.5"/>
+  <text x="400" y="127" text-anchor="middle" font-size="13" font-weight="bold" fill="#1565c0">🤖 base</text>
+  <text x="520" y="127" font-size="10" fill="#64b5f6">自由浮动基座（躯干）</text>
+
+  <!-- ===== 第2层: left_hip & right_hip ===== -->
+
+  <!-- left_hip 节点 -->
+  <rect x="108" y="180" width="165" height="28" fill="#e8f5e9" rx="14" stroke="#388e3c" stroke-width="1.5"/>
+  <text x="190" y="199" text-anchor="middle" font-size="12" font-weight="bold" fill="#2e7d32">🦵 left_hip</text>
+  <text x="282" y="199" font-size="10" fill="#81c784">铰链关节 [-0.5, 0.5]</text>
+
+  <!-- right_hip 节点 -->
+  <rect x="530" y="180" width="165" height="28" fill="#e8f5e9" rx="14" stroke="#388e3c" stroke-width="1.5"/>
+  <text x="612" y="199" text-anchor="middle" font-size="12" font-weight="bold" fill="#2e7d32">🦵 right_hip</text>
+  <text x="704" y="199" font-size="10" fill="#81c784">铰链关节 [-0.5, 0.5]</text>
+
+  <!-- left_hip → left_knee -->
+  <line x1="190" y1="208" x2="190" y2="240" stroke="#388e3c" stroke-width="2"/>
+  <polygon points="185,238 190,250 195,238" fill="#388e3c"/>
+
+  <!-- right_hip → right_knee -->
+  <line x1="612" y1="208" x2="612" y2="240" stroke="#388e3c" stroke-width="2"/>
+  <polygon points="607,238 612,250 617,238" fill="#388e3c"/>
+
+  <!-- ===== 第3层: left_knee & right_knee ===== -->
+
+  <!-- left_knee 节点 -->
+  <rect x="108" y="250" width="165" height="28" fill="#fff3e0" rx="14" stroke="#f57c00" stroke-width="1.5"/>
+  <text x="190" y="269" text-anchor="middle" font-size="12" font-weight="bold" fill="#e65100">🦵 left_knee</text>
+  <text x="282" y="269" font-size="10" fill="#ffb74d">铰链关节 [-1.5, 0.0]</text>
+
+  <!-- right_knee 节点 -->
+  <rect x="530" y="250" width="165" height="28" fill="#fff3e0" rx="14" stroke="#f57c00" stroke-width="1.5"/>
+  <text x="612" y="269" text-anchor="middle" font-size="12" font-weight="bold" fill="#e65100">🦵 right_knee</text>
+  <text x="704" y="269" font-size="10" fill="#ffb74d">铰链关节 [-1.5, 0.0]</text>
+
+  <!-- left_knee → left_wheel -->
+  <line x1="190" y1="278" x2="190" y2="310" stroke="#f57c00" stroke-width="2"/>
+  <polygon points="185,308 190,320 195,308" fill="#f57c00"/>
+
+  <!-- right_knee → right_wheel -->
+  <line x1="612" y1="278" x2="612" y2="310" stroke="#f57c00" stroke-width="2"/>
+  <polygon points="607,308 612,320 617,308" fill="#f57c00"/>
+
+  <!-- ===== 第4层: left_wheel & right_wheel ===== -->
+
+  <!-- left_wheel 节点 -->
+  <rect x="108" y="320" width="165" height="28" fill="#fce4ec" rx="14" stroke="#c62828" stroke-width="1.5"/>
+  <text x="190" y="339" text-anchor="middle" font-size="12" font-weight="bold" fill="#b71c1c">⚙️ left_wheel</text>
+  <text x="282" y="339" font-size="10" fill="#ef9a9a">铰链关节（自由）</text>
+
+  <!-- right_wheel 节点 -->
+  <rect x="530" y="320" width="165" height="28" fill="#fce4ec" rx="14" stroke="#c62828" stroke-width="1.5"/>
+  <text x="612" y="339" text-anchor="middle" font-size="12" font-weight="bold" fill="#b71c1c">⚙️ right_wheel</text>
+  <text x="704" y="339" font-size="10" fill="#ef9a9a">铰链关节（自由）</text>
+
+  <!-- ===== 执行器信息标注 ===== -->
+  <rect x="50" y="390" width="700" height="110" fill="#f3e5f5" rx="10" stroke="#9c27b0" stroke-width="1"/>
+  <text x="400" y="414" text-anchor="middle" font-size="13" font-weight="bold" fill="#7b1fa2">执行器映射</text>
+  <line x1="180" y1="422" x2="620" y2="422" stroke="#ce93d8" stroke-width="1"/>
+
+  <rect x="70" y="432" width="155" height="50" fill="#ffffff" rx="6" stroke="#ce93d8" stroke-width="1"/>
+  <text x="147" y="450" text-anchor="middle" font-size="10" font-weight="bold" fill="#7b1fa2">hip_servo × 2</text>
+  <text x="147" y="470" text-anchor="middle" font-size="9" fill="#666">位置执行器</text>
+
+  <rect x="245" y="432" width="155" height="50" fill="#ffffff" rx="6" stroke="#ce93d8" stroke-width="1"/>
+  <text x="322" y="450" text-anchor="middle" font-size="10" font-weight="bold" fill="#7b1fa2">knee_servo × 2</text>
+  <text x="322" y="470" text-anchor="middle" font-size="9" fill="#666">位置执行器</text>
+
+  <rect x="420" y="432" width="155" height="50" fill="#ffffff" rx="6" stroke="#ce93d8" stroke-width="1"/>
+  <text x="497" y="450" text-anchor="middle" font-size="10" font-weight="bold" fill="#7b1fa2">wheel_motor × 2</text>
+  <text x="497" y="470" text-anchor="middle" font-size="9" fill="#666">速度执行器</text>
+
+  <rect x="595" y="432" width="135" height="50" fill="#ffffff" rx="6" stroke="#ce93d8" stroke-width="1"/>
+  <text x="662" y="450" text-anchor="middle" font-size="10" font-weight="bold" fill="#7b1fa2">共 6 个执行器</text>
+  <text x="662" y="470" text-anchor="middle" font-size="9" fill="#666">nu=6</text>
+
+  <!-- 图例 -->
+  <rect x="650" y="56" width="120" height="48" fill="#ffffff" rx="6" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="710" y="72" text-anchor="middle" font-size="9" font-weight="bold" fill="#666">模型参数</text>
+  <text x="710" y="90" text-anchor="middle" font-size="9" fill="#888">nq=6  nv=6  nu=6</text>
+</svg>

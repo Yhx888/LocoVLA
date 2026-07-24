@@ -1,0 +1,1 @@
+{"max_episode_steps": 1000, "control_dt": 0.01, "termination": {"max_pitch_rad": 0.8, "min_height": -0.35}, "reward_scales": {"alive": 0.5, "upright": 1.0, "height": 0.5, "position": 0.1, "effort": 0.01, "smoothness": 0.02}}

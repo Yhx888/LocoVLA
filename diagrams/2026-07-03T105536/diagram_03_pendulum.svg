@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 500">
+  <!-- 背景 -->
+  <rect x="0" y="0" width="600" height="500" fill="#f8f9fa" rx="12"/>
+
+  <!-- 标题 -->
+  <text x="300" y="36" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a1a2e">轮式倒立摆模型</text>
+  <line x1="200" y1="48" x2="400" y2="48" stroke="#1a1a2e" stroke-width="1.5" opacity="0.25"/>
+
+  <!-- ===== 地面 ===== -->
+  <rect x="50" y="430" width="500" height="8" fill="#8d6e63" rx="3"/>
+  <text x="565" y="438" font-size="10" fill="#795548">地面</text>
+
+  <!-- ===== 车轮 ===== -->
+  <!-- 轮子外圈 -->
+  <circle cx="300" cy="390" r="45" fill="#e3f2fd" stroke="#1976d2" stroke-width="3"/>
+  <!-- 轮子内圈 -->
+  <circle cx="300" cy="390" r="18" fill="#bbdefb" stroke="#1976d2" stroke-width="2"/>
+  <!-- 轮辐 -->
+  <line x1="300" y1="345" x2="300" y2="435" stroke="#1976d2" stroke-width="1.5" opacity="0.5"/>
+  <line x1="255" y1="390" x2="345" y2="390" stroke="#1976d2" stroke-width="1.5" opacity="0.5"/>
+  <line x1="268" y1="358" x2="332" y2="422" stroke="#1976d2" stroke-width="1.5" opacity="0.5"/>
+  <line x1="268" y1="422" x2="332" y2="358" stroke="#1976d2" stroke-width="1.5" opacity="0.5"/>
+
+  <!-- 标签：车轮 -->
+  <text x="300" y="392" text-anchor="middle" font-size="12" font-weight="bold" fill="#1565c0">轮</text>
+  <!-- 半径标注 -->
+  <line x1="300" y1="390" x2="345" y2="390" stroke="#e53935" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <text x="322" y="383" font-size="10" fill="#e53935">r</text>
+
+  <!-- ===== 摆杆 ===== -->
+  <!-- 摆杆（倾斜角度 θ） -->
+  <g transform="translate(300, 390)">
+    <!-- 倾斜10度 -->
+    <line x1="0" y1="0" x2="-85" y2="-280" stroke="#37474f" stroke-width="6" stroke-linecap="round"/>
+
+    <!-- 躯干 body -->
+    <rect x="-125" y="-310" width="80" height="40" fill="#fff3e0" rx="8" stroke="#f57c00" stroke-width="2"/>
+    <text x="-85" y="-288" text-anchor="middle" font-size="11" font-weight="bold" fill="#e65100">躯干</text>
+    <text x="-85" y="-275" text-anchor="middle" font-size="9" fill="#666">m, l</text>
+  </g>
+
+  <!-- ===== 角度标注 ===== -->
+  <!-- 圆弧 θ -->
+  <path d="M 275,370 A 35,35 0 0,0 260,355" stroke="#e53935" stroke-width="2" fill="none"/>
+  <!-- θ 标签 -->
+  <text x="262" y="360" font-size="14" font-weight="bold" fill="#e53935">θ</text>
+
+  <!-- ===== 标注信息 ===== -->
+  <!-- 状态变量框 -->
+  <rect x="50" y="52" width="240" height="100" fill="#e3f2fd" rx="8" stroke="#90caf9" stroke-width="1"/>
+  <text x="170" y="74" text-anchor="middle" font-size="12" font-weight="bold" fill="#1565c0">状态变量</text>
+  <line x1="65" y1="82" x2="275" y2="82" stroke="#90caf9" stroke-width="1"/>
+  <text x="65" y="100" font-size="11" fill="#1976d2">θ = 躯干偏角（绕 Y 轴）</text>
+  <text x="65" y="118" font-size="11" fill="#1976d2">θ̇ = 躯干角速度</text>
+  <text x="65" y="136" font-size="11" fill="#1976d2">v = 轮子前进速度</text>
+
+  <!-- 参数框 -->
+  <rect x="310" y="52" width="240" height="100" fill="#e8f5e9" rx="8" stroke="#a5d6a7" stroke-width="1"/>
+  <text x="430" y="74" text-anchor="middle" font-size="12" font-weight="bold" fill="#2e7d32">物理参数</text>
+  <line x1="325" y1="82" x2="535" y2="82" stroke="#a5d6a7" stroke-width="1"/>
+  <text x="325" y="100" font-size="11" fill="#388e3c">m = 躯干质量</text>
+  <text x="325" y="118" font-size="11" fill="#388e3c">m_w = 轮子质量</text>
+  <text x="325" y="136" font-size="11" fill="#388e3c">l = 躯干质心高度</text>
+
+  <!-- 底部控制说明 -->
+  <rect x="50" y="455" width="500" height="36" fill="#fce4ec" rx="8" stroke="#ef9a9a" stroke-width="1"/>
+  <text x="300" y="478" text-anchor="middle" font-size="11" fill="#c62828">控制目标：通过轮子力矩 F_w 保持 θ ≈ 0，实现直立平衡</text>
+</svg>

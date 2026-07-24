@@ -1,0 +1,10 @@
+{
+  "algorithm": "PPO",
+  "tensorboard_log": "outputs/tensorboard",
+  "checkpoint_dir": "outputs/checkpoints",
+  "seed": 42,
+  "profiles": {
+    "smoke": {"total_timesteps": 256, "learning_rate": 0.0003, "n_steps": 16, "batch_size": 8, "gamma": 0.99},
+    "reference": {"total_timesteps": 50000, "learning_rate": 0.0003, "n_steps": 1024, "batch_size": 64, "gamma": 0.99}
+  }
+}

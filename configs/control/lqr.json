@@ -1,0 +1,11 @@
+{
+  "lqr": {
+    "enabled": true,
+    "state_order": ["x", "x_rate", "pitch", "pitch_rate"],
+    "gain": [[-2.0, -0.8, -3.0, -0.15]],
+    "torque_filter_alpha": 0.2,
+    "_comment_p_code_015": "P-CODE-015 补充：以下 Q_matrix 和 R_matrix 是生成 gain 的代价权重参考值。本课程 LQR 使用预计算固定增益，不在代码中在线求解 Riccati 方程。Q/R 仅供教学文档参考，LQRBalanceController 不读取这两个字段。",
+    "Q_matrix": [[1.0, 0.0, 0.0, 0.0], [0.0, 0.1, 0.0, 0.0], [0.0, 0.0, 10.0, 0.0], [0.0, 0.0, 0.0, 0.1]],
+    "R_matrix": [[0.1]]
+  }
+}

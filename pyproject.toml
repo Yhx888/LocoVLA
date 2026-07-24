@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "upkie-mujoco-course"
+version = "0.3.0"
+description = "MuJoCo 双腿轮足机器人运动控制教程：以 Upkie 为第一教学载体"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+  "mujoco>=3.1.0",
+  "gymnasium>=0.29.0",
+  "numpy>=1.24.0",
+  "scipy>=1.10.0",
+  "matplotlib>=3.6.0",
+  "stable-baselines3>=2.0.0",
+  "torch>=2.0.0",
+  "tensorboard>=2.13.0",
+  "streamlit>=1.40.0",
+  "fastapi>=0.115.0",
+  "uvicorn[standard]>=0.30.0",
+  "plotly>=5.24.0",
+  "imageio>=2.34.0",
+  "imageio-ffmpeg>=0.5.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "pytest-asyncio>=0.23.0",
+  "httpx2>=2.0.0",
+  "pytest-cov>=4.0",
+  "coverage>=7.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = [".", "src"]
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers"]
+asyncio_mode = "auto"
+filterwarnings = [
+  "error::UserWarning"
+]
+markers = [
+  "slow: 标记慢测试（可使用 -m 'not slow' 跳过）",
+  "asyncio: 异步测试标记",
+  "rl_reference: 依赖参考平台的 PPO 训练收敛测试。SB3+torch 训练在不同操作系统/CPU 上无法逐位复现，其严格收敛阈值（success=1.0/fall=0.0/pitch<=0.35）在参考平台（本地 Windows）调定。本地 pytest 默认仍全量运行并强制阈值；CI 用 -m 'not rl_reference' 排除，避免异构硬件上的伪失败。",
+]

@@ -1,0 +1,86 @@
+{
+  "schema_version": "2.0",
+  "chapter_id": "37",
+  "created_at": "2026-07-23T16:50:30.324508+00:00",
+  "git_commit": "bb6d7bed2526c22c0d15eb5510a3d7de8d9ef93c",
+  "source_state": {
+    "commit": "bb6d7bed2526c22c0d15eb5510a3d7de8d9ef93c",
+    "git_dirty": true,
+    "tracked_diff_sha256": "5effe46730850d9870fc92d2bd419ec5e142af4893a8f99716d64140bacd081f",
+    "untracked_manifest_sha256": "76cffc67d1b8bd0b51591864b0365c2911f4764bb68b7bcf0e58973c857076be",
+    "requirements_lock_sha256": "c06ae7eb45a483dfddefaab4d11c4c5759b4c66d07e04105b6400cf40d7f99ac",
+    "source_digest": "c403ea42d2ce59669b486e627ee577f259680de89147f9650df85c5fe106eef3"
+  },
+  "seed": 0,
+  "config": {
+    "lab": "vla_37"
+  },
+  "metrics": {
+    "three_color_task_count": 3.0,
+    "navigation_success_rate": 1.0,
+    "collision_rate": 0.0,
+    "mean_stopping_error_m": 0.18018859428043324,
+    "max_pitch_rad": 0.11724357070752267,
+    "bc_policy_evaluated": 1.0,
+    "policy_inference_count": 9260.0,
+    "emergency_stop_latency_steps": 0.0,
+    "post_stop_wheel_torque_max": 0.0
+  },
+  "pass_conditions": {
+    "three_color_task_count": {
+      "operator": ">=",
+      "value": 3.0
+    },
+    "navigation_success_rate": {
+      "operator": ">=",
+      "value": 0.8
+    },
+    "collision_rate": {
+      "operator": "==",
+      "value": 0.0
+    },
+    "mean_stopping_error_m": {
+      "operator": "<=",
+      "value": 0.4
+    },
+    "max_pitch_rad": {
+      "operator": "<=",
+      "value": 0.5
+    },
+    "bc_policy_evaluated": {
+      "operator": "==",
+      "value": 1.0
+    },
+    "policy_inference_count": {
+      "operator": ">=",
+      "value": 1.0
+    },
+    "emergency_stop_latency_steps": {
+      "operator": "==",
+      "value": 0.0
+    },
+    "post_stop_wheel_torque_max": {
+      "operator": "<=",
+      "value": 1e-09
+    }
+  },
+  "checks": {
+    "three_color_task_count": true,
+    "navigation_success_rate": true,
+    "collision_rate": true,
+    "mean_stopping_error_m": true,
+    "max_pitch_rad": true,
+    "bc_policy_evaluated": true,
+    "policy_inference_count": true,
+    "emergency_stop_latency_steps": true,
+    "post_stop_wheel_torque_max": true
+  },
+  "passed": true,
+  "plots": [
+    "outputs/plots/vla_37.png"
+  ],
+  "videos": [],
+  "logs": [
+    "outputs/logs/vla_37.json"
+  ]
+}

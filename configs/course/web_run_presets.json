@@ -1,0 +1,23 @@
+{
+  "_comment": "每个 ready 章节的 demo 预设；full 命令来自 manifest。",
+  "defaults": {
+    "demo": {
+      "command_pattern": "python scripts/course_checkpoint.py --chapter {chapter_id} --smoke",
+      "estimated_seconds": 15,
+      "counts_for_acceptance": false
+    },
+    "full": {
+      "estimated_seconds": 300,
+      "counts_for_acceptance": true
+    }
+  },
+  "chapters": {
+    "06": { "demo": { "estimated_seconds": 30 } },
+    "28": { "demo": { "estimated_seconds": 60, "command_pattern": "python scripts/06_train_ppo_standing.py --total-timesteps 1000" }, "full": { "estimated_seconds": 600 } },
+    "30": { "demo": { "estimated_seconds": 60 }, "full": { "estimated_seconds": 600 } },
+    "35": { "demo": { "estimated_seconds": 60 }, "full": { "estimated_seconds": 600 } },
+    "36": { "demo": { "estimated_seconds": 60 }, "full": { "estimated_seconds": 600 } },
+    "40": { "demo": { "estimated_seconds": 30, "command_pattern": "python scripts/run_engineering_lab_40.py --smoke" } },
+    "41": { "demo": { "estimated_seconds": 60, "command_pattern": "python scripts/run_engineering_lab_41.py --smoke" }, "full": { "estimated_seconds": 600 } }
+  }
+}

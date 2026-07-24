@@ -1,0 +1,68 @@
+{
+  "schema_version": "2.0",
+  "profile": "upkie_v2",
+  "name": "upkie",
+  "description": "Upkie 双腿轮足机器人，作为本课程第一教学载体。",
+  "package_dir": "assets/upkie/upkie_description",
+  "model_path": "assets/upkie/upkie_description/urdf/upkie.urdf",
+  "model_format": "urdf",
+  "base_body": "base",
+  "floating_base": true,
+  "root_joint_name": "root",
+  "default_base_position": [0.0, 0.0, 0.0],
+  "default_base_quaternion": [0.9974656375, 0.0, 0.0711498553, 0.0],
+  "equilibrium_pitch_rad": 0.1424200457,
+  "floor_z": -0.54,
+  "timestep": 0.002,
+  "frame_skip": 5,
+  "state_dimensions": {"nq": 13, "nv": 12, "nu": 6},
+  "actuator_semantics": {
+    "leg": {"command": "position", "unit": "rad"},
+    "wheel": {"command": "torque", "unit": "N*m", "limit": [-1.0, 1.0]}
+  },
+  "sensor_contract": {
+    "source": "mujoco_sensordata",
+    "fields": [
+      {"name": "base_position", "unit": "m", "shape": [3]},
+      {"name": "base_quaternion", "unit": "1", "shape": [4], "order": "wxyz"},
+      {"name": "base_linear_velocity", "unit": "m/s", "shape": [3]},
+      {"name": "base_angular_velocity", "unit": "rad/s", "shape": [3]},
+      {"name": "joint_position", "unit": "rad", "shape": [6]},
+      {"name": "joint_velocity", "unit": "rad/s", "shape": [6]},
+      {"name": "imu_accelerometer", "unit": "m/s^2", "shape": [3]},
+      {"name": "imu_gyroscope", "unit": "rad/s", "shape": [3]},
+      {"name": "imu_orientation", "unit": "1", "shape": [4], "order": "wxyz"},
+      {"name": "wheel_encoder_position", "unit": "rad", "shape": [2]},
+      {"name": "wheel_encoder_velocity", "unit": "rad/s", "shape": [2]}
+    ]
+  },
+  "wheel_radius_fallback": 0.06,
+  "wheel_joints": ["left_wheel", "right_wheel"],
+  "wheel_directions": [1.0, -1.0],
+  "leg_joints": ["left_hip", "left_knee", "right_hip", "right_knee"],
+  "controlled_joints": ["left_hip", "left_knee", "left_wheel", "right_hip", "right_knee", "right_wheel"],
+  "position_actuators": [
+    {"name": "left_hip_servo", "joint": "left_hip", "kp": 40.0, "ctrlrange": [-1.2, 1.2]},
+    {"name": "left_knee_servo", "joint": "left_knee", "kp": 60.0, "ctrlrange": [-2.2, 2.2]},
+    {"name": "right_hip_servo", "joint": "right_hip", "kp": 40.0, "ctrlrange": [-1.2, 1.2]},
+    {"name": "right_knee_servo", "joint": "right_knee", "kp": 60.0, "ctrlrange": [-2.2, 2.2]}
+  ],
+  "torque_actuators": [
+    {"name": "left_wheel_motor", "joint": "left_wheel", "gear": 1.0, "ctrlrange": [-1.0, 1.0]},
+    {"name": "right_wheel_motor", "joint": "right_wheel", "gear": 1.0, "ctrlrange": [-1.0, 1.0]}
+  ],
+  "sensor_names": [
+    "imu_accelerometer",
+    "imu_gyroscope",
+    "imu_orientation",
+    "left_wheel_position",
+    "left_wheel_velocity",
+    "right_wheel_position",
+    "right_wheel_velocity"
+  ],
+  "default_pose": {
+    "stand": {"left_hip": -0.2, "left_knee": 0.6, "right_hip": 0.2, "right_knee": -0.6},
+    "crouch": {"left_hip": -0.3, "left_knee": 0.7, "right_hip": 0.3, "right_knee": -0.7}
+  },
+  "notes": "字段来自当前 Upkie URDF 和 Phase 1.5 模型审计经验。替换模型时先运行 scripts/01_check_model.py。"
+}

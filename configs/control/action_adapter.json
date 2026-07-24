@@ -1,0 +1,9 @@
+{
+  "_comment": "动作适配器配置。base_env.py::BaseUpkieEnv 读取本文件：leg_position_scale/wheel_torque_scale 用于动作缩放，action_filter 用于物理动作低通滤波和增量限制（默认关闭，alpha=0/max_delta=0 表示直通）。",
+  "leg_position_scale": 0.3,
+  "wheel_torque_scale": 1.0,
+  "action_filter": {
+    "low_pass_alpha": 0.0,
+    "max_delta": 0.0
+  }
+}
