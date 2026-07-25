@@ -16,7 +16,8 @@
 ├── cpp/              # C++ 控制库（Eigen + CMake + CTest）
 ├── dashboard/        # 课程前端
 │   ├── app.py        # Streamlit 实验台仪表盘
-│   └── web/          # React + Vite + TypeScript 前端
+│   └── web/          # React + Vite + TypeScript 前端（含 Three.js 3D 可视化、KaTeX、Mermaid）
+├── diagrams/         # 课程 SVG/PNG 图表（按时间戳子目录组织）
 ├── configs/          # 配置文件
 │   ├── control/      # 控制器配置（PD、LQR）
 │   ├── course/       # 课程配置（manifest.json）
@@ -60,10 +61,10 @@
 │       ├── hardware/         # 硬件接口
 │       ├── vla/              # VLA 模型接口
 │       ├── capstone/         # 综合项目
+│       ├── web/              # 课程 Web 后端：FastAPI + 内容服务
 │       └── utils/            # 工具函数
 ├── tests/            # 测试（55 个 .py 文件）
 ├── tutorials/        # 教程（v2/ 下 00-47 + H01-H10，共 58 关）
-├── build/            # C++ 工程构建输出
 └── archive/          # 历史版本
 ```
 
@@ -83,7 +84,8 @@
 | 7 | 44-47 | 岗位毕业项目 | 完整具身控制系统与岗位级作品集 |
 | H | H01-H10 | 硬件选修 | 复刻并改进桌面轮足平衡机器人 |
 
-- 章节入口脚本：`scripts/run_foundation_lab.py`、`scripts/run_classical_control_lab.py`、`scripts/run_engineering_lab.py` 等
+- 章节入口脚本：`scripts/run_foundation_lab.py`、`scripts/run_classical_control_lab.py`、`scripts/run_estimation_optimization_lab.py`、`scripts/run_rl_lab.py`、`scripts/run_vla_lab.py`、`scripts/run_trajectory_optimization_lab.py`、`scripts/run_engineering_lab.py` 等
+- 课程 Web 入口：`scripts/run_course_web.py`（FastAPI 后端 + React 前端）
 - 验收入口：`scripts/course_checkpoint.py --chapter <编号>`
 - v1 历史脚本（`scripts/01_check_model.py` 等）仍可运行，仅作旧版参考
 
@@ -131,9 +133,9 @@
 
 ## 注意事项
 
-- 项目根有两个 Python 环境：`.venv`（主力）和 `.venv311`（备用），不要混用
+- 项目根有两个 Python 环境：`.venv`（主力，Windows）和 `.venv-wsl`（WSL2 专用），不要混用
 - `ros2_ws/` 只在 WSL2 中构建和运行，Windows 侧无法直接使用
-- `build/` 是 C++ 工程构建输出目录，可能含多个工程版本的子目录
+- C++ 构建产物在 `cpp/build/`
 - `archive/v1-current-learning/` 仅作历史参考，不在其中新增功能
 - 修改模型后必须运行 `python scripts/11_model_contract_lab.py` 并同步教程和飞书文档
 
