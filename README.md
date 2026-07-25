@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/banner.svg" alt="LocoVLA — From Balance Control to Vision-Language-Action" width="880">
+<img src="docs/assets/banner.png" alt="LocoVLA — From Balance Control to Vision-Language-Action" width="880">
 
 # LocoVLA
 
