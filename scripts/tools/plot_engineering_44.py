@@ -219,8 +219,6 @@ def plot_doc_coverage(report: dict, out_path: Path) -> None:
     doc_services = summary.get("doc_services", [])
     code_services = summary.get("code_services", [])
     doc_config_paths = summary.get("doc_config_paths", [])
-    missing_config_paths = summary.get("missing_config_paths", [])
-    existing_config_paths = len(doc_config_paths) - len(missing_config_paths)
 
     # 数据组装：四个维度，文档 vs 代码
     categories = ["话题数", "服务数", "配置项数", "YAML 残留"]

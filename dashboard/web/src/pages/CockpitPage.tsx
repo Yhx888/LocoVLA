@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion'
+import { motion, useMotionValue, useTransform, animate, useReducedMotion, type Variants } from 'framer-motion'
 import {
   Award,
   BookOpen,
@@ -16,6 +16,20 @@ import {
 } from 'lucide-react'
 import type { CourseSummary } from '../api/types'
 import { getCourseSummary, getHealth } from '../api/client'
+import UpkieModel from '../three/UpkieModel'
+
+/* 数字冲刺 + 卡片错峰共用缓动 */
+const EASE_OUT_EXPO: [number, number, number, number] = [0.16, 1, 0.3, 1]
+
+/* 卡片入场：容器错峰，子项上浮淡入 */
+const staggerContainer: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
+}
+const staggerItem: Variants = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE_OUT_EXPO } },
+}
 
 const stageIcons: Record<string, typeof Layout> = {
   '0': BookOpen,
@@ -38,6 +52,7 @@ export default function CockpitPage() {
     () => localStorage.getItem('upkie_last_chapter')
   )
   const navigate = useNavigate()
+  const reduce = useReducedMotion()
 
   useEffect(() => {
     let cancelled = false
@@ -119,30 +134,31 @@ export default function CockpitPage() {
   const rounded = useTransform(count, (v) => Math.round(v))
   useEffect(() => {
     if (pct > 0) {
-      const ctrl = animate(count, pct, { duration: 1.5, ease: 'easeOut' })
+      // easeOutExpo：数字先快后慢"冲刺"到目标
+      const ctrl = animate(count, pct, { duration: reduce ? 0 : 1.6, ease: EASE_OUT_EXPO })
       return () => ctrl.stop()
     }
-  }, [pct])
+  }, [pct, reduce])
 
   const totalCh = summary?.total_chapters ?? 0
   const totalCount = useMotionValue(0)
   const totalRounded = useTransform(totalCount, (v) => Math.round(v))
   useEffect(() => {
     if (totalCh > 0) {
-      const ctrl = animate(totalCount, totalCh, { duration: 1.2, ease: 'easeOut' })
+      const ctrl = animate(totalCount, totalCh, { duration: reduce ? 0 : 1.3, ease: EASE_OUT_EXPO })
       return () => ctrl.stop()
     }
-  }, [totalCh])
+  }, [totalCh, reduce])
 
   const compCh = summary?.completed_chapters ?? 0
   const completedCount = useMotionValue(0)
   const completedRounded = useTransform(completedCount, (v) => Math.round(v))
   useEffect(() => {
     if (compCh > 0) {
-      const ctrl = animate(completedCount, compCh, { duration: 1.2, ease: 'easeOut' })
+      const ctrl = animate(completedCount, compCh, { duration: reduce ? 0 : 1.3, ease: EASE_OUT_EXPO })
       return () => ctrl.stop()
     }
-  }, [compCh])
+  }, [compCh, reduce])
 
   if (loading) {
     return (
@@ -190,16 +206,21 @@ export default function CockpitPage() {
         </p>
       </div>
 
-      <div className="stats-grid">
-        <div className="stat-card">
+      <motion.div
+        className="stats-grid"
+        variants={staggerContainer}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.div className="stat-card" variants={staggerItem}>
           <span className="stat-label">总章节</span>
           <span className="stat-value"><motion.span>{totalRounded}</motion.span></span>
-        </div>
-        <div className="stat-card">
+        </motion.div>
+        <motion.div className="stat-card" variants={staggerItem}>
           <span className="stat-label">已完成</span>
           <span className="stat-value"><motion.span>{completedRounded}</motion.span></span>
-        </div>
-        <div className="stat-card">
+        </motion.div>
+        <motion.div className="stat-card" variants={staggerItem}>
           <span className="stat-label">环境状态</span>
           <div className="flex items-center gap-2" style={{ marginTop: 4 }}>
             <span className={`env-dot ${health}`} />
@@ -207,8 +228,8 @@ export default function CockpitPage() {
               {health === 'ready' ? '就绪' : health === 'degraded' ? '部分缺失' : health === 'offline' ? '离线' : '检查中...'}
             </span>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {(lastChapter || summary.next_chapter) && (() => {
         const continueId = lastChapter || summary.next_chapter?.id;
@@ -220,9 +241,9 @@ export default function CockpitPage() {
         return (
           <motion.div
             className="next-chapter-card pulse-glow"
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
+            transition={{ duration: 0.5, ease: EASE_OUT_EXPO, delay: reduce ? 0 : 0.12 }}
           >
             <div className="next-info">
               <span className="next-label">{lastChapter ? '继续学习（上次位置）' : '继续学习'}</span>
@@ -237,7 +258,12 @@ export default function CockpitPage() {
 
       <div className="section-title">总体进度</div>
 
-      <div className="overall-progress mb-6">
+      <motion.div
+        className="overall-progress mb-6"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: EASE_OUT_EXPO, delay: reduce ? 0 : 0.2 }}
+      >
         <div className="overall-bar">
           <div className="overall-fill overall-fill-done" style={{ width: `${expPct}%` }} />
           <div className="overall-fill overall-fill-read" style={{ left: `${expPct}%`, width: `${Math.max(0, pct - expPct)}%` }} />
@@ -250,12 +276,25 @@ export default function CockpitPage() {
           </span>
           <span className="text-sm font-bold text-gray-700"><motion.span>{rounded}</motion.span>%</span>
         </div>
+      </motion.div>
+
+      <div className="model-card">
+        <div className="model-card-header">
+          <span className="model-card-title">Upkie 双轮足机器人</span>
+          <span className="model-card-hint">拖拽旋转 · L 键标签 · 重置相机</span>
+        </div>
+        <UpkieModel height="340px" />
       </div>
 
       <div className="section-title">课程阶段</div>
 
-      <div className="stage-sections">
-        {summary.stages.map((stage, i) => {
+      <motion.div
+        className="stage-sections"
+        variants={staggerContainer}
+        initial="hidden"
+        animate="show"
+      >
+        {summary.stages.map((stage) => {
           const Icon = stageIcons[stage.id] || Layout
           const done = stage.completed
           const read = stage.chapters?.filter((c) => c.reading_complete).length ?? 0
@@ -269,9 +308,7 @@ export default function CockpitPage() {
             <motion.div
               key={stage.id}
               className="stage-card-clickable"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25, delay: 0.05 * i }}
+              variants={staggerItem}
               onClick={() => firstId && navigate(`/chapter/${firstId}`)}
             >
               <div className="flex items-center justify-between mb-2">
@@ -295,7 +332,7 @@ export default function CockpitPage() {
             </motion.div>
           )
         })}
-      </div>
+      </motion.div>
     </motion.div>
   )
 }

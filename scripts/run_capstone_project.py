@@ -31,7 +31,6 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -250,7 +249,7 @@ def _write_portfolio(
         f"- **project_score = {metrics['project_score']:.1f}**",
         f"- **system_score = {metrics['system_score']:.1f}**",
         f"- 通过门槛数：{int(metrics['gate_passed_count'])} / {int(metrics['gate_total_count'])}",
-        f"- 第 45 关通过条件：`project_score >= 1.0`（六个既有工程维度全部通过）",
+        "- 第 45 关通过条件：`project_score >= 1.0`（六个既有工程维度全部通过）",
         f"- 6 步快速验证：{int(metrics.get('end_to_end_steps_passed', 0))} / {int(metrics.get('end_to_end_steps_total', 0))}",
         f"- 5 步真实端到端链路：{int(metrics.get('e2e_pipeline_steps_passed', 0))} / {int(metrics.get('e2e_pipeline_steps_total', 0))}",
         f"- 第 45 关状态：{'通过' if report['passed'] else '未通过（存在未闭环工程维度）'}",
@@ -365,7 +364,7 @@ def _write_portfolio(
         f"- 端到端流程图：`{e2e_flow_plot}`",
         f"- 8 维度评分雷达图：`{dim_score_plot}`",
         f"- 仿真时间线图：`{sim_timeline_plot}`",
-        f"- 毕业门槛汇总：`outputs/reports/graduation_gates.json`",
+        "- 毕业门槛汇总：`outputs/reports/graduation_gates.json`",
         "",
         "## 门槛证据来源",
         "",

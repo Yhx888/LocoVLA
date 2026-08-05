@@ -4,8 +4,6 @@
 实验字段不能由 PUT 写入。
 """
 
-import hashlib
-from pathlib import Path
 
 from upkie_mujoco_course.web.progress_store import ProgressStore
 

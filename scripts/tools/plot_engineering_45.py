@@ -27,7 +27,6 @@ import matplotlib
 
 matplotlib.use("Agg")  # 非交互后端，适合脚本运行
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 import numpy as np
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 

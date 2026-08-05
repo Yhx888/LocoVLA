@@ -8,7 +8,6 @@
 from copy import deepcopy
 from dataclasses import replace
 import json
-from pathlib import Path
 
 import mujoco
 

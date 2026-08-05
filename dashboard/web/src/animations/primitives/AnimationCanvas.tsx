@@ -59,6 +59,8 @@ export default function AnimationCanvas({
   const rafRef = useRef<number>(0)
   const lastRef = useRef<number>(0)
   const reducedRef = useRef(false)
+  // 挂载时的滑块定义，作为"初始参数"快照：reset 需要把参数回归到它
+  const initialSlidersRef = useRef(sliders)
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -92,7 +94,14 @@ export default function AnimationCanvas({
 
   const play = useCallback(() => setPlaying(true), [])
   const pause = useCallback(() => setPlaying(false), [])
-  const reset = useCallback(() => { setTime(0); setPlaying(false) }, [])
+  // 完整重置：播放状态、时间、所有参数滑块都回归初始值（滑块初始值 = min）
+  const reset = useCallback(() => {
+    setPlaying(false)
+    setTime(0)
+    const defaults: Record<string, number> = {}
+    for (const s of initialSlidersRef.current) defaults[s.key] = s.min
+    setParams(defaults)
+  }, [])
   const step = useCallback(() => {
     setPlaying(false)
     setTime(prev => {

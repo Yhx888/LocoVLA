@@ -21,7 +21,8 @@ dependencies = [
   "uvicorn[standard]>=0.30.0",
   "plotly>=5.24.0",
   "imageio>=2.34.0",
-  "imageio-ffmpeg>=0.5.0"
+  "imageio-ffmpeg>=0.5.0",
+  "httpx2>=2.0.0"
 ]
 
 [project.optional-dependencies]
@@ -30,11 +31,40 @@ dev = [
   "pytest-asyncio>=0.23.0",
   "httpx2>=2.0.0",
   "pytest-cov>=4.0",
-  "coverage>=7.0"
+  "coverage>=7.0",
+  "ruff>=0.6.0"
 ]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+# ruff：轻量静态门禁。先只启用少量高价值规则，避免一次性大改动淹没信号。
+# - F（Pyflakes）：未用导入、未定义名、未用变量等确定性问题
+# - PTH（flake8-use-pathlib）：强制用 pathlib.Path，呼应 AGENTS.md「路径统一用 pathlib.Path，不要写死绝对路径」
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+# 只检查项目实际源码；历史快照、产物、构建输出、WSL2 工作空间不纳入门禁。
+extend-exclude = [
+  "archive",
+  "assets",
+  "outputs",
+  "build",
+  "cpp/build",
+  "ros2_ws",
+  ".venv311",
+  ".venv-wsl",
+]
+
+[tool.ruff.lint]
+select = ["F", "PTH"]
+# PTH123（open() 改 Path.open()）价值低且改动面大，先不强制，后续可按需开启。
+ignore = ["PTH123"]
+
+[tool.ruff.lint.per-file-ignores]
+# artifacts.py 故意用 os.path 做跨平台字符串路径归一化（统一正反斜杠、跨平台盘符判定），
+# 改成 pathlib 会改变行为，属预期豁免。
+"src/upkie_mujoco_course/web/artifacts.py" = ["PTH117", "PTH118"]
 
 [tool.pytest.ini_options]
 pythonpath = [".", "src"]

@@ -187,7 +187,7 @@ def load_course_manifest() -> dict:
                 "checkpoints": checkpoints,
                 "acceptance": acceptance,
                 "visualizations": [
-                    f"outputs/plots/model_contract_11.png"
+                    "outputs/plots/model_contract_11.png"
                     if chapter_id == "11"
                     else f"outputs/plots/classical_{chapter_id}.png"
                     if chapter_id in CLASSICAL_TASKS

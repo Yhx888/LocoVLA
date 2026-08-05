@@ -17,7 +17,6 @@ import numpy as np
 import mujoco
 
 from upkie_mujoco_course.sim.loader import build_mujoco_model
-from upkie_mujoco_course.utils.paths import project_root
 
 
 # ---------------------------------------------------------------------------
@@ -186,7 +185,7 @@ def main() -> None:
     print(f"dR/droll 的 L2 范数: {np.linalg.norm(droll):.6f}")
     print(f"dR/dyaw  的 L2 范数: {np.linalg.norm(dyaw):.6f}")
     print(f"两者的余弦相似度:    {cos_sim:.8f}")
-    print(f"  (1.0 表示完全线性相关，即万向节锁)")
+    print("  (1.0 表示完全线性相关，即万向节锁)")
     print()
 
     # ------------------------------------------------------------------
@@ -216,8 +215,9 @@ def main() -> None:
         mujoco_mat = data.xmat[0].reshape(3, 3)
         euler_mat = quat_to_rotation_matrix(quat)
 
-        # 验证两种转换一致
+        # 验证两种转换一致（差异应接近 0，印证四元数无奇异性）
         mat_diff = np.max(np.abs(mujoco_mat - euler_mat))
+        assert mat_diff < 1e-6, f"旋转矩阵不一致：最大差异 {mat_diff:.2e}"
 
         quat_norm = np.linalg.norm(quat)
         print(
@@ -259,12 +259,12 @@ def main() -> None:
     r_minus_yaw = quat_to_rotation_matrix(q_minus_yaw)
 
     diff = np.max(np.abs(r_plus_roll - r_minus_yaw))
-    print(f"\n在 pitch=90 时，增加 roll 5 度 vs 减少 yaw 5 度：")
+    print("\n在 pitch=90 时，增加 roll 5 度 vs 减少 yaw 5 度：")
     print(f"  两种操作产生的旋转矩阵最大差异: {diff:.10f}")
     if diff < 0.01:
-        print(f"  -> 差异极小（< 0.01），证实 roll 和 yaw 的效果已不可区分！")
+        print("  -> 差异极小（< 0.01），证实 roll 和 yaw 的效果已不可区分！")
     else:
-        print(f"  -> 差异明显，roll 和 yaw 仍可区分")
+        print("  -> 差异明显，roll 和 yaw 仍可区分")
 
     print()
     print("=" * 60)

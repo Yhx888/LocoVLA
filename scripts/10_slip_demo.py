@@ -192,7 +192,7 @@ def main() -> None:
     wheel_radius = 0.06
     theoretical_fn = total_mass * g
 
-    print(f"测试台车参数:")
+    print("测试台车参数:")
     print(f"  总质量: {total_mass:.1f} kg")
     print(f"  理论法向力 (mg): {theoretical_fn:.3f} N")
     print(f"  轮子半径: {wheel_radius} m")

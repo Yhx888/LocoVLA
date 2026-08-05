@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import time
 from pathlib import Path
-from typing import Any
 
 import matplotlib
 
@@ -26,7 +25,7 @@ import numpy as np
 
 from upkie_mujoco_course.course.lab_io import artifact_paths, finalize_lab_artifacts
 from upkie_mujoco_course.vla.behavior_cloning import BehaviorCloningPolicy
-from upkie_mujoco_course.vla.contracts import load_episode, save_episode
+from upkie_mujoco_course.vla.contracts import DemonstrationEpisode, load_episode, save_episode
 from upkie_mujoco_course.vla.demonstrations import generate_scripted_demonstration
 from upkie_mujoco_course.vla.evaluation import evaluate_vla_tasks
 from upkie_mujoco_course.vla.expert import ExpertCommand, ScriptedVLAExpert

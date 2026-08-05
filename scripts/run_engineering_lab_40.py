@@ -120,7 +120,7 @@ def main() -> int:
     ]
     missing = [str(p) for p in required_evidence if not p.exists()]
     if missing:
-        print(f"[WARN] 缺少以下证据文件（需在 WSL2 中生成）：", file=sys.stderr)
+        print("[WARN] 缺少以下证据文件（需在 WSL2 中生成）：", file=sys.stderr)
         for m in missing:
             print(f"  - {m}", file=sys.stderr)
 

@@ -29,7 +29,8 @@
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0",
-    "three": "^0.167.0"
+    "three": "^0.167.0",
+    "urdf-loader": "^0.13.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",

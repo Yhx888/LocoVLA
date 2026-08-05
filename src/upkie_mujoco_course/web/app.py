@@ -5,13 +5,13 @@ from __future__ import annotations
 import json
 import time
 from contextlib import asynccontextmanager
-from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from upkie_mujoco_course.utils.paths import resolve_project_path
+from upkie_mujoco_course.web import ai as ai_service
 from upkie_mujoco_course.web.content import build_chapter_dto, build_course_summary
 from upkie_mujoco_course.web.progress_store import ProgressStore
 from upkie_mujoco_course.web.presets import get_chapter_presets, validate_command, validate_preset_args
@@ -24,7 +24,12 @@ from upkie_mujoco_course.web.runner import (
 )
 from upkie_mujoco_course.web.diagnostics import get_diagnostics
 from upkie_mujoco_course.web.artifacts import resolve_artifact_path, get_artifact_mime_type
-from upkie_mujoco_course.web.schemas import ProgressRecord
+from upkie_mujoco_course.web.schemas import (
+    AiConfigRequest,
+    AiExplainRequest,
+    AiGradeRequest,
+    ProgressRecord,
+)
 
 # ── 模块级结果缓存 ──
 _results_cache: list[dict] | None = None
@@ -163,6 +168,26 @@ def create_app(
             raise HTTPException(status_code=409, detail=str(exc))
         return {"status": "cancelled"}
 
+    # ── 实验验收状态重置 ──
+    @app.delete("/api/experiments/{chapter_id}")
+    async def reset_experiment(chapter_id: str):
+        """删除该章节的验收结果文件，使实验验收状态回归未通过。"""
+        results_dir = resolve_project_path("outputs", "results")
+        deleted: list[str] = []
+        if results_dir.exists():
+            for path in results_dir.glob("*.json"):
+                try:
+                    data = json.loads(path.read_text(encoding="utf-8-sig"))
+                except Exception:
+                    continue
+                if not isinstance(data, dict):
+                    continue
+                if str(data.get("chapter_id")) == chapter_id:
+                    path.unlink()  # 单文件删除（逐个明确路径）
+                    deleted.append(path.name)
+        _invalidate_results_cache()
+        return {"status": "ok", "chapter_id": chapter_id, "deleted": deleted}
+
     # ── WebSocket 事件流 ──
     @app.websocket("/api/runs/{run_id}/events")
     async def run_events(websocket: WebSocket, run_id: str, after: int = 0):
@@ -199,6 +224,66 @@ def create_app(
 
         return FileResponse(str(file_path), media_type=mime)
 
+    # ── AI 助教 ──
+    @app.get("/api/ai/status")
+    async def ai_status():
+        return ai_service.get_ai_status()
+
+    @app.post("/api/ai/config")
+    async def ai_config(body: AiConfigRequest):
+        """前端配置面板提交后写入 configs/course/ai.local.json，返回最新状态。"""
+        return ai_service.save_ai_config(
+            api_key=body.api_key,
+            base_url=body.base_url,
+            model=body.model,
+            enabled=body.enabled,
+        )
+
+    @app.post("/api/ai/explain")
+    async def ai_explain(body: AiExplainRequest):
+        try:
+            ai_service.require_config()
+            messages = ai_service.build_explain_messages(
+                chapter_title=body.chapter_title,
+                selected_text=body.selected_text,
+                context=body.context,
+                question=body.question,
+                history=[m.model_dump() for m in body.history],
+            )
+        except ai_service.AiNotConfiguredError as exc:
+            raise HTTPException(status_code=503, detail=str(exc))
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc))
+
+        async def event_stream():
+            try:
+                async for delta in ai_service.stream_chat(messages):
+                    yield f"data: {json.dumps({'delta': delta}, ensure_ascii=False)}\n\n"
+                yield "data: [DONE]\n\n"
+            except ai_service.AiServiceError as exc:
+                yield f"data: {json.dumps({'error': str(exc)}, ensure_ascii=False)}\n\n"
+
+        return StreamingResponse(
+            event_stream(),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        )
+
+    @app.post("/api/ai/grade")
+    async def ai_grade(body: AiGradeRequest):
+        if not body.user_answer.strip():
+            raise HTTPException(status_code=422, detail="学习者答案为空，无法评分")
+        try:
+            return await ai_service.grade_answer(
+                question=body.question,
+                reference_answer=body.reference_answer,
+                user_answer=body.user_answer,
+            )
+        except ai_service.AiNotConfiguredError as exc:
+            raise HTTPException(status_code=503, detail=str(exc))
+        except ai_service.AiServiceError as exc:
+            raise HTTPException(status_code=502, detail=str(exc))
+
     # ── 生产静态文件托管（所有 API 路由之后）──
     dist_dir = resolve_project_path("dashboard", "web", "dist")
     if dist_dir.exists():
@@ -212,6 +297,12 @@ def create_app(
         async def spa_fallback(full_path: str):
             if full_path.startswith("api/") or full_path.startswith("ws/"):
                 raise HTTPException(status_code=404)
+            # 静态资产优先：dist 内真实存在的文件直接返回（如 /upkie/ 模型资产），
+            # 否则按 SPA 约定回退 index.html
+            if full_path:
+                asset_path = (dist_dir / full_path).resolve()
+                if asset_path.is_file() and dist_dir.resolve() in asset_path.parents:
+                    return FileResponse(str(asset_path))
             index_file = dist_dir / "index.html"
             if index_file.exists():
                 return FileResponse(str(index_file), media_type="text/html")

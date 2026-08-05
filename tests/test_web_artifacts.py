@@ -4,11 +4,9 @@
 """
 
 import pytest
-from pathlib import Path
 from upkie_mujoco_course.web.artifacts import (
     is_safe_artifact_path,
     get_artifact_mime_type,
-    list_chapter_artifacts,
     resolve_artifact_path,
 )
 from upkie_mujoco_course.utils.paths import resolve_project_path

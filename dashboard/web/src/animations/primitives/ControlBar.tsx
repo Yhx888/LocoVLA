@@ -19,6 +19,36 @@ function formatTime(ms: number): string {
   return `${s}.${cs.toString().padStart(2, '0')}s`
 }
 
+/* 控制条按钮：白底描边，hover 上浮微反馈 */
+function BarButton({ onClick, title, children }: { onClick: () => void; title: string; children: string }) {
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      style={{
+        border: '1px solid var(--gray-300)',
+        borderRadius: 4,
+        padding: '2px 10px',
+        cursor: 'pointer',
+        background: 'var(--white)',
+        color: 'var(--gray-700)',
+        lineHeight: '24px',
+        transition: 'background var(--transition-fast), transform var(--transition-fast)',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = 'var(--gray-100)'
+        e.currentTarget.style.transform = 'translateY(-1px)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = 'var(--white)'
+        e.currentTarget.style.transform = ''
+      }}
+    >
+      {children}
+    </button>
+  )
+}
+
 export default function ControlBar({ sliders = [] }: Props) {
   const anim = useAnimation()
 
@@ -29,59 +59,39 @@ export default function ControlBar({ sliders = [] }: Props) {
         flexWrap: 'wrap',
         alignItems: 'center',
         gap: 8,
-        padding: '6px 12px',
-        borderTop: '1px solid #e5e7eb',
-        background: '#f9fafb',
+        padding: '8px 12px',
+        borderTop: '1px solid var(--gray-200)',
+        background: 'var(--gray-50)',
         fontSize: 13,
         userSelect: 'none',
       }}
     >
       {/* Play/Pause */}
-      <button
-        onClick={anim.playing ? anim.pause : anim.play}
-        title={anim.playing ? '暂停' : '播放'}
-        style={{
-          border: '1px solid #d1d5db', borderRadius: 4, padding: '2px 10px',
-          cursor: 'pointer', background: '#fff', lineHeight: '24px',
-        }}
-      >
+      <BarButton onClick={anim.playing ? anim.pause : anim.play} title={anim.playing ? '暂停' : '播放'}>
         {anim.playing ? '⏸' : '▶'}
-      </button>
+      </BarButton>
 
       {/* Step */}
-      <button
-        onClick={anim.step}
-        title="步进"
-        style={{
-          border: '1px solid #d1d5db', borderRadius: 4, padding: '2px 10px',
-          cursor: 'pointer', background: '#fff', lineHeight: '24px',
-        }}
-      >
+      <BarButton onClick={anim.step} title="步进一帧">
         ⏭
-      </button>
+      </BarButton>
 
-      {/* Reset */}
-      <button
-        onClick={anim.reset}
-        title="重置"
-        style={{
-          border: '1px solid #d1d5db', borderRadius: 4, padding: '2px 10px',
-          cursor: 'pointer', background: '#fff', lineHeight: '24px',
-        }}
-      >
+      {/* Reset：完整重置（时间 + 参数滑块） */}
+      <BarButton onClick={anim.reset} title="重置（时间与参数滑块）">
         ⏹
-      </button>
+      </BarButton>
 
       {/* Time info */}
-      <span style={{ fontFamily: 'monospace', fontSize: 12, color: '#6b7280', minWidth: 80 }}>
+      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--gray-500)', minWidth: 80 }}>
         {formatTime(anim.time)} / {formatTime(anim.duration)}
       </span>
 
-      {/* Progress bar */}
+      {/* Progress bar：点击/拖动跳转，悬停微增高 */}
       <div
         style={{
-          flex: 1, minWidth: 60, height: 6, background: '#e5e7eb',
+          flex: 1, minWidth: 60, height: 6, background: 'var(--gray-200)',
           borderRadius: 3, cursor: 'pointer', position: 'relative',
+          transition: 'height var(--transition-fast)',
         }}
         onClick={(e) => {
           const rect = e.currentTarget.getBoundingClientRect()
@@ -92,19 +102,19 @@ export default function ControlBar({ sliders = [] }: Props) {
         <div
           style={{
             height: '100%', width: `${anim.progress * 100}%`,
-            background: '#3b82f6', borderRadius: 3,
+            background: 'var(--blue-500)', borderRadius: 3,
             transition: 'width 50ms linear',
           }}
         />
       </div>
 
-      {/* Sliders */}
+      {/* Sliders：value 来自 anim.params，reset 后自动回位到 min */}
       {sliders.map((s) => (
         <label
           key={s.key}
           style={{
-            display: 'inline-flex', alignItems: 'center', gap: 4,
-            fontSize: 12, whiteSpace: 'nowrap',
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            fontSize: 12, whiteSpace: 'nowrap', color: 'var(--gray-700)',
           }}
         >
           {s.label}
@@ -115,9 +125,9 @@ export default function ControlBar({ sliders = [] }: Props) {
             step={s.step ?? 0.01}
             value={anim.params[s.key] ?? s.min}
             onChange={(e) => anim.setParam(s.key, parseFloat(e.target.value))}
-            style={{ width: 80, height: 4, margin: 0, verticalAlign: 'middle' }}
+            style={{ width: 80, height: 4, margin: 0, verticalAlign: 'middle', accentColor: 'var(--blue-600)' }}
           />
-          <span style={{ fontFamily: 'monospace', color: '#6b7280', minWidth: 28 }}>
+          <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--gray-600)', minWidth: 28 }}>
             {(anim.params[s.key] ?? s.min).toFixed(s.step && s.step >= 1 ? 0 : 2)}
           </span>
         </label>

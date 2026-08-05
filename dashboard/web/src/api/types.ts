@@ -104,3 +104,45 @@ export interface SelfCheckItem {
   text: string;
   checked: boolean;
 }
+
+export interface AiStatusDto {
+  configured: boolean;
+  model: string;
+  base_url?: string;
+  has_key?: boolean;
+}
+
+export interface AiConfigRequest {
+  api_key?: string;
+  base_url?: string;
+  model?: string;
+  enabled?: boolean;
+}
+
+export interface AiChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface AiExplainRequest {
+  chapter_id: string;
+  chapter_title: string;
+  selected_text?: string;
+  context?: string;
+  question?: string;
+  history?: AiChatMessage[];
+}
+
+export interface AiGradeRequest {
+  chapter_id: string;
+  question_id: string;
+  question: string;
+  reference_answer: string;
+  user_answer: string;
+}
+
+export interface AiGradeResult {
+  score: number;
+  comment: string;
+  gaps: string[];
+}

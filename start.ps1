@@ -12,7 +12,7 @@ $venvPython = Join-Path $root ".venv\Scripts\python.exe"
 if (-not (Test-Path $venvPython)) {
     Write-Host "[X] .venv not found at .venv" -ForegroundColor Red
     Write-Host "    Run: python -m venv .venv"
-    Write-Host "    Then: .venv\Scripts\pip install -r requirements.txt"
+    Write-Host "    Then: .venv\Scripts\pip install -r requirements.lock"
     Read-Host "Press Enter to exit"
     exit 1
 }

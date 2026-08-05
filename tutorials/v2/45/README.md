@@ -189,13 +189,28 @@ python scripts/course_checkpoint.py --chapter 45
 ## 复盘与面试
 
 1. 本关最关键的假设是什么？失效时第一个可观测信号是什么？
-   - 假设：8 类门槛的证据文件路径和 `passed` 字段结构正确。失效信号：`dimension_scores` 中某个维度意外为 0.0。
+
+<!-- upkie-qa:45-q1 -->
+最关键的假设是：8 类门槛的证据文件路径和 `passed` 字段结构正确——`scoring.py` 的 `compute_system_score` 函数通过 `DIMENSION_TO_GATE` 映射找到每个维度对应的结果契约文件（比如 realtime→`outputs/results/engineering_42.json`），读取其中的 `passed` 字段，文件不存在或字段缺失时该维度得 0.0。这个假设失效时（比如有人改了文件名、移动了目录、或者结果契约的 JSON 结构变了），第一个可观测信号是 `dimension_scores` 中某个维度意外为 0.0，而对应的关卡实际上已经通过。本关的故障诊断挑战就是验证这个机制：删除 `outputs/results/engineering_42.json` 后，`dimension_scores.realtime` 从 1.0 降为 0.0，`project_score` 从 1.0 降为 0.0——即使控制循环实际上运行正常，证据文件缺失就等于"无法证明通过"，评分系统正确地给出了 0.0。这个设计是刻意的：评分系统不信任"实际上通过了"的口头声明，只信任可验证的证据文件。面试时的判断框架：证据链的完整性比单个维度的通过更重要——一个维度意外为 0.0 时，先查证据文件是否存在、结构是否正确，再查关卡本身是否真的失败。常见误区是"system_score=0 就说明系统有问题"——实际上可能只是证据文件被误删，系统本身完全正常；反过来，system_score=1.0 也只表示证据齐备，本关正文明确声明"课程工程就绪不等于学习者毕业"，毕业仍需仓库外部人工答辩。
+<!-- /upkie-qa -->
+
 2. 为什么用 min 而不是平均值或加权和？
-   - min 确保"全链路无短板"的零容忍语义；平均值会掩盖缺陷，加权和需要主观设定权重。
+
+<!-- upkie-qa:45-q2 -->
+`min` 实现的是"零容忍"语义：所有维度通过 ⟺ system_score=1.0，等价于逻辑与（AND）操作。本关正文的木桶原理类比很直观：8 个维度像 8 块木板围成木桶，能装多少水取决于最矮的板，不取决于最高的板。具体到机器人：如果 code、physics、robustness 全满分，但 realtime=0（控制循环超时），机器人在真实部署中照样会摔倒——实时性缺陷不能被其他维度的高分"补偿"。平均值的问题：7 个维度通过、1 个失败，平均值=7/8=0.875，看起来"差不多通过了"，但实际上存在一个未闭环的风险，平均值掩盖了这个缺陷。加权和的问题更根本：权重本身需要主观设定（safety 的权重应该是 realtime 的几倍？），这个设定无法从工程原理推导，不同人会给不同权重，结果不可复现；而且只要权重不是无穷大，加权和仍然允许"用高分维度补偿低分维度"，违背安全系统的零容忍原则。`min` 操作不需要任何主观参数，结果完全由证据决定，可复现性最强。本关的数值算例：6 个工程维度全 1.0、design_review 和 oral_defense 为 0.0 时，`project_score=min(六个1.0)=1.0`（第 45 关通过），`system_score=min(八个值)=0.0`（全课程证据未齐备）——两个分数的区别精确反映了"当前关卡通过"和"全课程就绪"的语义差异。常见误区是"min 太严格，应该允许一定程度的缺陷"——安全系统里，"一定程度的缺陷"就是"不可接受的缺陷"。
+<!-- /upkie-qa -->
+
 3. 你能用哪三份证据证明结果可复现？
-   - `engineering_45.json`（结果契约）、`engineering_45_e2e_run.log`（真实链路日志）、`portfolio/45/engineering_45_report.md`（评分明细）。
+
+<!-- upkie-qa:45-q3 -->
+三份证据覆盖"评分结果、原始链路、人类可读明细"三个层次。第一份是结果契约 `outputs/results/engineering_45.json`：包含 `project_score`、`system_score`、`dimension_scores`（8 个维度各自的 0.0/1.0）和 `gate_passed_count`，以及 git_commit；这是机器可读的最终判定，让别人能在相同代码版本下重跑 `python scripts/run_capstone_project.py` 得到相同分数。第二份是端到端链路日志 `outputs/logs/engineering_45_e2e_run.log`：记录"仿真→控制→安全→日志→分析"全链路的实际运行输出，是评分数字的原始来源——如果 `dimension_scores.realtime=1.0` 有疑问，可以从这份日志里找到第 42 关控制循环的实际运行记录，验证它确实通过了。第三份是 portfolio 报告 `outputs/portfolio/45/engineering_45_report.md`：包含 8 维度评分明细表，直观展示每个维度的通过状态、对应关卡和证据文件路径；这是给人类审查者看的，回答"为什么这个维度通过/不通过"而不只是"是否通过"。三份证据的分工：契约给出判定，日志给出原始数据，报告给出可审查的论证。面试时的判断框架：如果面试官问"system_score=1.0 是否意味着可以部署"，答案是"不意味着"——本关正文明确声明课程工程就绪不等于学习者毕业，三份证据证明的是"本地工程证据齐备"，部署决策还需要外部人工评审。常见误区是把自动评分当成最终认证——`scoring.py` 能验证证据文件存在且 `passed=true`，但不能判断证据本身是否有意义。
+<!-- /upkie-qa -->
+
 4. 如果 system_score 突然从 1.0 降为 0.0，你先查哪个维度？为什么？
-   - 先查 `dimension_scores` 中值为 0.0 的维度，再追溯该维度对应的关卡结果契约是否被删除或 `passed` 字段是否变为 false。
+
+<!-- upkie-qa:45-q4 -->
+不需要"猜"先查哪个维度——`dimension_scores` 字典直接告诉你哪个维度是 0.0。`compute_system_score` 函数返回的 `dimension_scores` 里，值为 0.0 的那个（或那几个）维度就是根因所在，`system_score=min(...)` 只是把这个最小值提升为整体判定。找到 0.0 维度后，追溯路径是确定的：查 `DIMENSION_TO_GATE` 映射（比如 realtime→`engineering_42.json`），检查对应的结果契约文件是否存在、`passed` 字段是否为 true。本关的故障诊断挑战就是这个流程的实例：删除 `engineering_42.json` 后，`dimension_scores.realtime` 变为 0.0，`project_score` 从 1.0 降为 0.0；恢复文件后重跑，指标恢复。如果文件存在但 `passed=false`，说明对应关卡本身失败了，需要去那个关卡排查（比如第 42 关的 P99 超过 12 ms deadline）。如果文件不存在，说明证据链断了，需要重跑对应关卡生成证据。面试时的判断框架：system_score 退化的排查是"读 dimension_scores → 定位 0.0 维度 → 查证据文件 → 查关卡本身"的四步确定性流程，不需要任何猜测。常见误区是"system_score=0 就全部重跑一遍"——这是浪费时间，`dimension_scores` 已经精确指出了哪个维度有问题，直接查那一个就够了。另一个常见误区是把 system_score=0 等同于"系统坏了"——本关的数值算例里，第 46/47 关未完成时 system_score=0.0 是正常状态，不代表任何工程缺陷。
+<!-- /upkie-qa -->
 
 ## 下一关
 

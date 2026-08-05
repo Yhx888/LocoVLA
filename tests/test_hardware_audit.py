@@ -6,7 +6,6 @@
 - 审计报告字段契约
 """
 import json
-from pathlib import Path
 
 from upkie_mujoco_course.hardware.audit import audit_repository_snapshot
 from upkie_mujoco_course.hardware.audit import run_hardware_audit

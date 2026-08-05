@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import hashlib
-from pathlib import Path
 
 from upkie_mujoco_course.course.manifest import load_course_manifest
 from upkie_mujoco_course.utils.paths import resolve_project_path

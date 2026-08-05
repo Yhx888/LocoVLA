@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, type CSSProperties, type ChangeEvent } from 'react';
 import { Play, RotateCcw, TriangleAlert } from 'lucide-react';
 import {
   COURSE_ANIMATION_BY_ID,
@@ -9,6 +9,171 @@ import { useRunCoordinator } from '../run/RunCoordinator';
 
 const ARTIFACT_BASE = '/api/artifacts/';
 const MOTION_QUERY = '(prefers-reduced-motion: reduce)';
+
+/* 真实 Upkie 几何（米制，正视图，来源：assets/upkie/upkie_description/urdf/upkie.urdf）：
+   轮半径 0.05，半轮距 0.30；机身 0.17（宽）× 0.25（高）、中心离地 0.165；
+   髋 y=±0.085 离地 0.131；膝 y=±0.197 离地 0.087；把手从机身顶向上 0.035 */
+const UPKIE = {
+  wheelR: 0.05,
+  trackHalf: 0.3,
+  bodyW: 0.17,
+  bodyH: 0.25,
+  bodyCenterZ: 0.165,
+  hipY: 0.085,
+  hipZ: 0.131,
+  kneeY: 0.197,
+  kneeZ: 0.087,
+  handleH: 0.035,
+  handleW: 0.07,
+};
+
+interface UpkiePoint { x: number; y: number }
+interface UpkiePose {
+  r: number;
+  wheelL: UpkiePoint;
+  wheelR: UpkiePoint;
+  hipL: UpkiePoint;
+  hipR: UpkiePoint;
+  kneeL: UpkiePoint;
+  kneeR: UpkiePoint;
+  body: { x: number; y: number; w: number; h: number };
+  handle: { x: number; y: number; w: number; h: number };
+}
+
+/** 米制几何 → SVG 坐标：scale px/m，groundY 为地面线 y，cx 为机器人中心 x */
+function upkiePose(scale: number, groundY: number, cx: number): UpkiePose {
+  const px = (y: number) => cx + y * scale;
+  const py = (z: number) => groundY - z * scale;
+  const bodyTop = py(UPKIE.bodyCenterZ + UPKIE.bodyH / 2);
+  return {
+    r: UPKIE.wheelR * scale,
+    wheelL: { x: px(-UPKIE.trackHalf), y: py(UPKIE.wheelR) },
+    wheelR: { x: px(UPKIE.trackHalf), y: py(UPKIE.wheelR) },
+    hipL: { x: px(-UPKIE.hipY), y: py(UPKIE.hipZ) },
+    hipR: { x: px(UPKIE.hipY), y: py(UPKIE.hipZ) },
+    kneeL: { x: px(-UPKIE.kneeY), y: py(UPKIE.kneeZ) },
+    kneeR: { x: px(UPKIE.kneeY), y: py(UPKIE.kneeZ) },
+    body: { x: px(-UPKIE.bodyW / 2), y: bodyTop, w: UPKIE.bodyW * scale, h: UPKIE.bodyH * scale },
+    handle: {
+      x: px(-UPKIE.handleW / 2),
+      y: bodyTop - UPKIE.handleH * scale,
+      w: UPKIE.handleW * scale,
+      h: UPKIE.handleH * scale,
+    },
+  };
+}
+
+/** 点绕中心旋转（SVG 坐标，角度制） */
+function rotatePoint(p: UpkiePoint, c: UpkiePoint, deg: number): UpkiePoint {
+  const rad = (deg * Math.PI) / 180;
+  const cos = Math.cos(rad);
+  const sin = Math.sin(rad);
+  const dx = p.x - c.x;
+  const dy = p.y - c.y;
+  return { x: c.x + dx * cos - dy * sin, y: c.y + dx * sin + dy * cos };
+}
+
+// 内联动效样式：前缀统一 inline-，随组件渲染注入，避免触碰 index.css
+const INLINE_ANIMATION_CSS = `
+/* 节点依次点亮：只用 opacity/filter，不碰 transform，避免覆盖 SVG transform 属性 */
+@keyframes inline-node-pop {
+  0% { opacity: 0.3; filter: brightness(1); }
+  60% { opacity: 1; filter: brightness(1.3); }
+  100% { opacity: 1; filter: brightness(1); }
+}
+.inline-node-pop { animation: inline-node-pop 0.5s ease-out both; }
+
+/* 信号队列：跟随主 token 错峰起步 */
+.anim-pulse.is-playing.inline-token-2 { animation-delay: 0.15s; }
+.anim-pulse.is-playing.inline-token-3 { animation-delay: 0.3s; }
+
+/* 参数值变化放大脉冲 */
+@keyframes inline-value-pop {
+  0% { transform: scale(1); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.inline-value-pop { animation: inline-value-pop 0.25s ease-out both; }
+
+/* 参数滑块：加粗圆角轨道 + 加大拇指，提升可拖拽感 */
+.parameter-scene input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2563eb, #0f766e);
+  cursor: pointer;
+}
+.parameter-scene input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #2563eb;
+  border: 3px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.35);
+  cursor: grab;
+}
+.parameter-scene input[type='range']::-webkit-slider-thumb:active { cursor: grabbing; }
+.parameter-scene input[type='range']::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2563eb, #0f766e);
+}
+.parameter-scene input[type='range']::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #2563eb;
+  border: 3px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.35);
+  cursor: grab;
+}
+
+/* 故障面板红色警示呼吸（仅播放中生效） */
+@keyframes inline-fault-warn {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(220, 38, 38, 0)); }
+  50% { filter: drop-shadow(0 0 12px rgba(220, 38, 38, 0.55)); }
+}
+.inline-fault-warn { animation: inline-fault-warn 1.6s ease-in-out infinite; }
+
+/* 对比曲线生长绘制：健康 1.2s，故障 0.8s 错峰 0.1s，forwards 停在终态 */
+.inline-draw-path.is-drawing {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: inline-draw-path 1.2s ease-out forwards;
+}
+.inline-draw-path.is-drawing.inline-draw-fault {
+  animation-duration: 0.8s;
+  animation-delay: 0.1s;
+}
+@keyframes inline-draw-path { to { stroke-dashoffset: 0; } }
+
+/* 证据图片加载后淡入上移 */
+@keyframes inline-figure-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.inline-figure-in { animation: inline-figure-in 0.5s ease-out both; }
+`;
+
+// 节点依次点亮：第 i 个节点 delay i*0.22s；静止（未播放/降级）时返回空 class
+function nodePop(index: number, playing: boolean, reducedMotion: boolean): { className: string; style?: CSSProperties } {
+  if (!playing || reducedMotion) return { className: '' };
+  return { className: 'inline-node-pop', style: { animationDelay: `${index * 0.22}s` } };
+}
+
+// 信号队列：额外 2 个无 testid 的 token，跟随主 token 错峰流动，仅在播放中渲染
+function QueueTokens({ cx, cy, playing }: { cx: number; cy: number; playing: boolean }) {
+  if (!playing) return null;
+  return (
+    <g>
+      <circle cx={cx} cy={cy} r="7" className="anim-pulse is-playing inline-token-2" />
+      <circle cx={cx} cy={cy} r="7" className="anim-pulse is-playing inline-token-3" />
+    </g>
+  );
+}
 
 export default function InlineCourseAnimation({ animationId, large = false }: {
   animationId: string;
@@ -85,12 +250,13 @@ export default function InlineCourseAnimation({ animationId, large = false }: {
       data-motion={reducedMotion ? 'reduced' : 'full'}
       aria-label={entry.title}
     >
+      <style>{INLINE_ANIMATION_CSS}</style>
       <header className="inline-animation-header">
         <div>
           <span className="inline-animation-kicker">{categoryLabel(entry)}</span>
           <h3>{entry.title}</h3>
         </div>
-        <button type="button" className="icon-button" onClick={replay} title="重播动画" disabled={reducedMotion}>
+        <button type="button" className="icon-button" onClick={replay} title="重置动画" aria-label="重置动画，恢复初始状态" disabled={reducedMotion}>
           <RotateCcw size={16} />
         </button>
       </header>
@@ -203,18 +369,21 @@ function MechanismGeometry({ entry, labels, items, marker, playing, completed, r
           <text x="205" y="88" className="anim-subtext">{items[0] ?? labels[0]}</text>
           <text x="520" y="78" className="anim-subtext">{items[1] ?? labels[2]}</text>
           <circle data-testid="motion-token" cx={showFinalFrame ? 392 : 92} cy="166" r="7" className={`anim-pulse ${playing ? 'is-playing' : ''}`} />
+          <QueueTokens cx={showFinalFrame ? 392 : 92} cy={166} playing={playing} />
         </g>
       );
     case 'formulaExplorer': {
       const formula = entry.chapterConfig.items.find((item) => item.type === 'formula')?.text ?? labels[1];
+      const popRect = nodePop(0, playing, reducedMotion);
+      const popCircle = nodePop(1, playing, reducedMotion);
       return (
         <g>
-          <rect x="70" y="68" width="620" height="56" rx="6" className="anim-node decide" />
+          <rect x="70" y="68" width="620" height="56" rx="6" className={`anim-node decide ${popRect.className}`} style={popRect.style} />
           <text x="380" y="102" textAnchor="middle">{compact(formula, 48)}</text>
           <line x1="170" y1="214" x2="330" y2="214" className="parameter-axis" markerEnd={marker} />
           <line x1="170" y1="214" x2="170" y2="142" className="parameter-axis" markerEnd={marker} />
           <line x1="170" y1="214" x2="286" y2="154" stroke="#0f766e" strokeWidth="5" markerEnd={marker} />
-          <circle cx="550" cy="178" r="46" fill="#eff6ff" stroke="#2563eb" strokeWidth="3" />
+          <circle cx="550" cy="178" r="46" fill="#eff6ff" stroke="#2563eb" strokeWidth="3" className={popCircle.className || undefined} style={popCircle.style} />
           <text x="550" y="174" textAnchor="middle">{labels[2]}</text>
           <text x="550" y="197" textAnchor="middle" className="anim-subtext">代入即可验证</text>
         </g>
@@ -223,21 +392,22 @@ function MechanismGeometry({ entry, labels, items, marker, playing, completed, r
     case 'dataPipeline':
       return (
         <g>
-          <ConfiguredGraph entry={entry} marker={marker} fallbackLabels={items.length ? items : labels} kind="stage" />
+          <ConfiguredGraph entry={entry} marker={marker} fallbackLabels={items.length ? items : labels} kind="stage" playing={playing} reducedMotion={reducedMotion} />
           <circle data-testid="motion-token" cx={showFinalFrame ? 382 : 82} cy="65" r="7" className={`anim-pulse ${playing ? 'is-playing' : ''}`} />
+          <QueueTokens cx={showFinalFrame ? 382 : 82} cy={65} playing={playing} />
           <text x="380" y="252" textAnchor="middle" className="anim-subtext">数据逐级变换，最终形成可复核产物</text>
         </g>
       );
     case 'flowchart':
       return (
         <g>
-          <ConfiguredGraph entry={entry} marker={marker} fallbackLabels={items.length ? items : labels} kind="stage" />
+          <ConfiguredGraph entry={entry} marker={marker} fallbackLabels={items.length ? items : labels} kind="stage" playing={playing} reducedMotion={reducedMotion} />
         </g>
       );
     case 'stateFlow':
       return (
         <g>
-          <ConfiguredGraph entry={entry} marker={marker} fallbackLabels={items.length ? items : labels} kind="node" />
+          <ConfiguredGraph entry={entry} marker={marker} fallbackLabels={items.length ? items : labels} kind="node" playing={playing} reducedMotion={reducedMotion} />
         </g>
       );
     case 'architecture': {
@@ -248,9 +418,10 @@ function MechanismGeometry({ entry, labels, items, marker, playing, completed, r
             const width = 520 - index * 58;
             const x = (760 - width) / 2;
             const y = 66 + index * 43;
+            const pop = nodePop(index, playing, reducedMotion);
             return (
               <g key={`${label}-${index}`}>
-                <rect x={x} y={y} width={width} height="32" rx="5" fill={index % 2 ? '#ecfdf5' : '#eff6ff'} stroke={index % 2 ? '#0f766e' : '#2563eb'} strokeWidth="2" />
+                <rect x={x} y={y} width={width} height="32" rx="5" fill={index % 2 ? '#ecfdf5' : '#eff6ff'} stroke={index % 2 ? '#0f766e' : '#2563eb'} strokeWidth="2" className={pop.className || undefined} style={pop.style} />
                 <text x="380" y={y + 21} textAnchor="middle">{label}</text>
                 {index < layers.length - 1 && <line x1="380" y1={y + 32} x2="380" y2={y + 41} className="anim-link" markerEnd={marker} />}
               </g>
@@ -259,13 +430,14 @@ function MechanismGeometry({ entry, labels, items, marker, playing, completed, r
         </g>
       );
     }
-    case 'controlLoop':
+    case 'controlLoop': {
+      const pops = [0, 1, 2, 3].map((index) => nodePop(index, playing, reducedMotion));
       return (
         <g>
-          <circle cx="82" cy="122" r="28" fill="#eff6ff" stroke="#2563eb" strokeWidth="3" />
-          <rect x="164" y="88" width="150" height="68" rx="6" className="anim-node decide" />
-          <rect x="392" y="88" width="150" height="68" rx="6" className="anim-node act" />
-          <rect x="598" y="88" width="120" height="68" rx="6" className="anim-node observe" />
+          <circle cx="82" cy="122" r="28" fill="#eff6ff" stroke="#2563eb" strokeWidth="3" className={pops[0].className || undefined} style={pops[0].style} />
+          <rect x="164" y="88" width="150" height="68" rx="6" className={`anim-node decide ${pops[1].className}`} style={pops[1].style} />
+          <rect x="392" y="88" width="150" height="68" rx="6" className={`anim-node act ${pops[2].className}`} style={pops[2].style} />
+          <rect x="598" y="88" width="120" height="68" rx="6" className={`anim-node observe ${pops[3].className}`} style={pops[3].style} />
           <text x="82" y="127" textAnchor="middle">目标</text>
           <text x="239" y="118" textAnchor="middle">{labels[1]}</text>
           <text x="239" y="141" textAnchor="middle" className="anim-subtext">误差 → 控制量</text>
@@ -277,37 +449,65 @@ function MechanismGeometry({ entry, labels, items, marker, playing, completed, r
           <line x1="542" y1="122" x2="588" y2="122" className="anim-link" markerEnd={marker} />
           <polyline points="658,156 658,208 82,208 82,160" fill="none" className="anim-link feedback" markerEnd={marker} />
           <circle data-testid="motion-token" cx={showFinalFrame ? 426 : 126} cy="208" r="7" className={`anim-pulse ${playing ? 'is-playing' : ''}`} />
+          <QueueTokens cx={showFinalFrame ? 426 : 126} cy={208} playing={playing} />
         </g>
       );
-    case 'robotView':
+    }
+    case 'robotView': {
+      const pops = [0, 1, 2, 3, 4, 5].map((index) => nodePop(index, playing, reducedMotion));
+      // 真实比例正视图：scale 320 px/m，地面 y=213，中心 x=380（总高 0.325m ≈ 104px）
+      const pose = upkiePose(320, 213, 380);
+      const leg = (hip: UpkiePoint, knee: UpkiePoint, wheel: UpkiePoint) => (
+        <g>
+          <line x1={hip.x} y1={hip.y} x2={knee.x} y2={knee.y} stroke="#94a3b8" strokeWidth="3.5" strokeLinecap="round" />
+          <line x1={knee.x} y1={knee.y} x2={wheel.x} y2={wheel.y - 1} stroke="#94a3b8" strokeWidth="3.5" strokeLinecap="round" />
+          <circle cx={hip.x} cy={hip.y} r="3.5" fill="#7c2d12" />
+          <circle cx={knee.x} cy={knee.y} r="2.8" fill="#7c2d12" />
+        </g>
+      );
       return (
         <g>
           <line x1="70" y1="213" x2="690" y2="213" className="parameter-axis" />
-          <circle cx="320" cy="196" r="29" className="robot-wheel" />
-          <circle cx="440" cy="196" r="29" className="robot-wheel" />
-          <line x1="380" y1="185" x2="380" y2="86" className="robot-body" />
-          <circle cx="380" cy="78" r="12" fill="#0f766e" />
-          {items.slice(0, 3).map((label, index) => (
-            <g key={`${label}-${index}`}>
-              <rect x={72 + index * 215} y="65" width="180" height="34" rx="5" fill="#f8fafc" stroke="#64748b" />
-              <text x={162 + index * 215} y="87" textAnchor="middle" className="anim-subtext">{label}</text>
-            </g>
-          ))}
-          <line x1="380" y1="111" x2="522" y2="146" stroke="#f59e0b" strokeWidth="3" strokeDasharray="6 4" markerEnd={marker} />
+          {/* 轮子 */}
+          <circle cx={pose.wheelL.x} cy={pose.wheelL.y} r={pose.r} className={`robot-wheel ${pops[0].className}`} style={{ fill: '#1f2937', ...pops[0].style }} />
+          <circle cx={pose.wheelR.x} cy={pose.wheelR.y} r={pose.r} className={`robot-wheel ${pops[1].className}`} style={{ fill: '#1f2937', ...pops[1].style }} />
+          <circle cx={pose.wheelL.x} cy={pose.wheelL.y} r="3" fill="#9ca3af" />
+          <circle cx={pose.wheelR.x} cy={pose.wheelR.y} r="3" fill="#9ca3af" />
+          {/* 机身 + 把手 */}
+          <rect x={pose.body.x} y={pose.body.y} width={pose.body.w} height={pose.body.h} rx="9" fill="#f5e6d8" stroke="#c2703d" strokeWidth="2" />
+          <rect x={pose.handle.x} y={pose.handle.y} width={pose.handle.w} height={pose.handle.h} rx="3" fill="#c2703d" />
+          <circle cx="380" cy={pose.handle.y - 4.5} r="4.5" fill="#0f766e" className={pops[2].className || undefined} style={pops[2].style} />
+          {/* 腿 + 关节 */}
+          {leg(pose.hipL, pose.kneeL, pose.wheelL)}
+          {leg(pose.hipR, pose.kneeR, pose.wheelR)}
+          {items.slice(0, 3).map((label, index) => {
+            const pop = pops[3 + index];
+            return (
+              <g key={`${label}-${index}`}>
+                <rect x={72 + index * 215} y="65" width="180" height="34" rx="5" fill="#f8fafc" stroke="#64748b" className={pop.className || undefined} style={pop.style} />
+                <text x={162 + index * 215} y="87" textAnchor="middle" className="anim-subtext">{label}</text>
+              </g>
+            );
+          })}
+          {/* 状态观测：机身右缘 → 标签区 */}
+          <line x1={pose.hipR.x + 12} y1={pose.body.y + pose.body.h * 0.42} x2="522" y2="146" stroke="#f59e0b" strokeWidth="3" strokeDasharray="6 4" markerEnd={marker} />
           <text x="570" y="151" className="anim-subtext">状态观测</text>
         </g>
       );
+    }
   }
 }
 
-function ConfiguredGraph({ entry, marker, fallbackLabels, kind }: {
+function ConfiguredGraph({ entry, marker, fallbackLabels, kind, playing, reducedMotion }: {
   entry: CourseAnimationEntry;
   marker: string;
   fallbackLabels: string[];
   kind: 'stage' | 'node';
+  playing: boolean;
+  reducedMotion: boolean;
 }) {
   const nodes = entry.chapterConfig.items.filter(isPositionedNode);
-  if (nodes.length < 2) return <>{pipelineNodes(fallbackLabels, marker, kind)}</>;
+  if (nodes.length < 2) return <>{pipelineNodes(fallbackLabels, marker, kind, playing, reducedMotion)}</>;
 
   const byId = new Map(nodes.flatMap((node) => node.id ? [[node.id, node]] : []));
   const arrows = entry.chapterConfig.items.filter((item) => item.type === 'arrow');
@@ -348,6 +548,7 @@ function ConfiguredGraph({ entry, marker, fallbackLabels, kind }: {
         const width = node.w ?? 120;
         const height = node.h ?? 44;
         const color = node.color ?? (kind === 'node' ? '#0f766e' : '#2563eb');
+        const pop = nodePop(index, playing, reducedMotion);
         return (
           <g key={node.id ?? `configured-node-${index}`}>
             <rect
@@ -360,6 +561,8 @@ function ConfiguredGraph({ entry, marker, fallbackLabels, kind }: {
               fillOpacity=".12"
               stroke={color}
               strokeWidth="2.5"
+              className={pop.className || undefined}
+              style={pop.style}
             />
             <text x={node.x + width / 2} y={node.y + height / 2 + 5} textAnchor="middle">
               {compact(node.label ?? node.text ?? '', Math.max(5, Math.floor(width / 13)))}
@@ -377,7 +580,7 @@ function isPositionedNode(item: AnimationItem): item is AnimationItem & { x: num
     && typeof item.y === 'number';
 }
 
-function pipelineNodes(labels: string[], marker: string, kind: 'stage' | 'node') {
+function pipelineNodes(labels: string[], marker: string, kind: 'stage' | 'node', playing: boolean, reducedMotion: boolean) {
   const shown = labels;
   const count = Math.max(shown.length, 1);
   const columns = Math.min(count, 4);
@@ -390,9 +593,10 @@ function pipelineNodes(labels: string[], marker: string, kind: 'stage' | 'node')
     const x = start + column * (width + gap);
     const y = 78 + row * 58;
     const connectsSameRow = index < count - 1 && (index + 1) % columns !== 0;
+    const pop = nodePop(index, playing, reducedMotion);
     return (
       <g key={`${kind}-${label}-${index}`}>
-        <rect x={x} y={y} width={width} height="42" rx={kind === 'node' ? 14 : 6} className={index % 2 ? 'anim-node decide' : 'anim-node observe'} />
+        <rect x={x} y={y} width={width} height="42" rx={kind === 'node' ? 14 : 6} className={`${index % 2 ? 'anim-node decide' : 'anim-node observe'} ${pop.className}`} style={pop.style} />
         <text x={x + width / 2} y={y + 26} textAnchor="middle">{compact(label, Math.max(6, Math.floor(width / 13)))}</text>
         {connectsSameRow && <line x1={x + width} y1={y + 21} x2={x + width + gap - 8} y2={y + 21} className="anim-link" markerEnd={marker} />}
       </g>
@@ -403,8 +607,21 @@ function pipelineNodes(labels: string[], marker: string, kind: 'stage' | 'node')
 function ParameterScene({ entry }: { entry: CourseAnimationEntry }) {
   const parameter = entry.parameter!;
   const [value, setValue] = useState(parameter.initial);
+  const outputRef = useRef<HTMLOutputElement>(null);
   const normalized = (value - parameter.min) / Math.max(parameter.max - parameter.min, Number.EPSILON);
   const offset = (normalized * 16).toFixed(2);
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const next = Number(event.target.value);
+    setValue(next);
+    // 移除后强制回流再添加，重放放大脉冲（保持同一 DOM 节点，不打断外部引用）
+    const el = outputRef.current;
+    if (el) {
+      el.classList.remove('inline-value-pop');
+      void el.offsetWidth;
+      el.classList.add('inline-value-pop');
+    }
+  };
 
   return (
     <div className="parameter-scene">
@@ -424,9 +641,9 @@ function ParameterScene({ entry }: { entry: CourseAnimationEntry }) {
           max={parameter.max}
           step={parameter.step ?? 0.01}
           value={value}
-          onChange={(event) => setValue(Number(event.target.value))}
+          onChange={handleChange}
         />
-        <output data-testid="animation-output" data-value={value}>
+        <output ref={outputRef} data-testid="animation-output" data-value={value}>
           {value.toFixed(parameter.step && parameter.step >= 1 ? 0 : 2)}
         </output>
       </label>
@@ -529,6 +746,13 @@ function ParameterGeometry({ entry, normalized }: { entry: CourseAnimationEntry;
     case 'controlLoop': {
       const response = -16 + normalized * 32;
       const strokeWidth = 2 + normalized * 6;
+      // 真实比例正视图：scale 300 px/m，地面 y=185，中心 x=615
+      const pose = upkiePose(300, 185, 615);
+      const pivot = { x: 615, y: 185 - 0.04 * 300 };
+      const hipL = rotatePoint(pose.hipL, pivot, response);
+      const hipR = rotatePoint(pose.hipR, pivot, response);
+      const kneeL = rotatePoint(pose.kneeL, pivot, response);
+      const kneeR = rotatePoint(pose.kneeR, pivot, response);
       return (
         <g>
           <rect x="70" y="90" width="150" height="64" rx="6" className="anim-node observe" />
@@ -537,9 +761,25 @@ function ParameterGeometry({ entry, normalized }: { entry: CourseAnimationEntry;
           <text x="375" y="117" textAnchor="middle">{entry.parameter?.label}</text>
           <text x="375" y="140" textAnchor="middle" className="anim-subtext">反馈强度</text>
           <line x1="220" y1="122" x2={280 + normalized * 20} y2="122" stroke="#0f766e" strokeWidth={strokeWidth} />
-          <circle cx="575" cy="172" r="24" className="robot-wheel" />
-          <circle cx="655" cy="172" r="24" className="robot-wheel" />
-          <line x1="615" y1="162" x2="615" y2="76" className="robot-body" transform={`rotate(${response} 615 162)`} />
+          <line x1="515" y1="185" x2="715" y2="185" className="parameter-axis" />
+          {/* 上半身（机身 + 髋 + 大腿 + 膝）随响应倾角绕机身底部旋转 */}
+          <g transform={`rotate(${response} ${pivot.x} ${pivot.y})`}>
+            <rect x={pose.body.x} y={pose.body.y} width={pose.body.w} height={pose.body.h} rx="8" fill="#f5e6d8" stroke="#c2703d" strokeWidth="2" />
+            <rect x={pose.handle.x} y={pose.handle.y} width={pose.handle.w} height={pose.handle.h} rx="2.5" fill="#c2703d" />
+            <line x1={hipL.x} y1={hipL.y} x2={kneeL.x} y2={kneeL.y} stroke="#94a3b8" strokeWidth="3.5" strokeLinecap="round" />
+            <line x1={hipR.x} y1={hipR.y} x2={kneeR.x} y2={kneeR.y} stroke="#94a3b8" strokeWidth="3.5" strokeLinecap="round" />
+            <circle cx={hipL.x} cy={hipL.y} r="3.5" fill="#7c2d12" />
+            <circle cx={hipR.x} cy={hipR.y} r="3.5" fill="#7c2d12" />
+            <circle cx={kneeL.x} cy={kneeL.y} r="2.8" fill="#7c2d12" />
+            <circle cx={kneeR.x} cy={kneeR.y} r="2.8" fill="#7c2d12" />
+          </g>
+          {/* 小腿连接旋转后膝点与固定轮心，轮子贴地不转 */}
+          <line x1={kneeL.x} y1={kneeL.y} x2={pose.wheelL.x} y2={pose.wheelL.y - 1} stroke="#94a3b8" strokeWidth="3.5" strokeLinecap="round" />
+          <line x1={kneeR.x} y1={kneeR.y} x2={pose.wheelR.x} y2={pose.wheelR.y - 1} stroke="#94a3b8" strokeWidth="3.5" strokeLinecap="round" />
+          <circle cx={pose.wheelL.x} cy={pose.wheelL.y} r={pose.r} className="robot-wheel" style={{ fill: '#1f2937' }} />
+          <circle cx={pose.wheelR.x} cy={pose.wheelR.y} r={pose.r} className="robot-wheel" style={{ fill: '#1f2937' }} />
+          <circle cx={pose.wheelL.x} cy={pose.wheelL.y} r="2.6" fill="#9ca3af" />
+          <circle cx={pose.wheelR.x} cy={pose.wheelR.y} r="2.6" fill="#9ca3af" />
           <text x="615" y="210" textAnchor="middle" className="anim-subtext">闭环响应 {response.toFixed(1)}°</text>
         </g>
       );
@@ -547,13 +787,35 @@ function ParameterGeometry({ entry, normalized }: { entry: CourseAnimationEntry;
     case 'robotView': {
       const tilt = -22 + normalized * 44;
       const force = 40 + normalized * 130;
+      // 真实比例正视图：scale 320 px/m，地面 y=185，中心 x=370；轮径随参数增大并保持贴地
+      const pose = upkiePose(320, 185, 370);
+      const r = (0.05 + 0.025 * normalized) * 320;
+      const wheelY = 185 - r;
+      const pivot = { x: 370, y: 185 - 0.04 * 320 };
+      const hipL = rotatePoint(pose.hipL, pivot, tilt);
+      const hipR = rotatePoint(pose.hipR, pivot, tilt);
+      const kneeL = rotatePoint(pose.kneeL, pivot, tilt);
+      const kneeR = rotatePoint(pose.kneeR, pivot, tilt);
       return (
         <g>
           <line x1="65" y1="185" x2="690" y2="185" className="parameter-axis" />
-          <circle cx="310" cy="171" r={22 + normalized * 8} className="robot-wheel" />
-          <circle cx="430" cy="171" r={22 + normalized * 8} className="robot-wheel" />
-          <line x1="370" y1="160" x2="370" y2="65" className="robot-body" transform={`rotate(${tilt} 370 160)`} />
-          <line x1="430" y1="171" x2={430 + force} y2="171" stroke="#dc2626" strokeWidth="5" />
+          <g transform={`rotate(${tilt} ${pivot.x} ${pivot.y})`}>
+            <rect x={pose.body.x} y={pose.body.y} width={pose.body.w} height={pose.body.h} rx="9" fill="#f5e6d8" stroke="#c2703d" strokeWidth="2" />
+            <rect x={pose.handle.x} y={pose.handle.y} width={pose.handle.w} height={pose.handle.h} rx="3" fill="#c2703d" />
+            <line x1={hipL.x} y1={hipL.y} x2={kneeL.x} y2={kneeL.y} stroke="#94a3b8" strokeWidth="3.5" strokeLinecap="round" />
+            <line x1={hipR.x} y1={hipR.y} x2={kneeR.x} y2={kneeR.y} stroke="#94a3b8" strokeWidth="3.5" strokeLinecap="round" />
+            <circle cx={hipL.x} cy={hipL.y} r="3.5" fill="#7c2d12" />
+            <circle cx={hipR.x} cy={hipR.y} r="3.5" fill="#7c2d12" />
+            <circle cx={kneeL.x} cy={kneeL.y} r="2.8" fill="#7c2d12" />
+            <circle cx={kneeR.x} cy={kneeR.y} r="2.8" fill="#7c2d12" />
+          </g>
+          <line x1={kneeL.x} y1={kneeL.y} x2={pose.wheelL.x} y2={wheelY - 1} stroke="#94a3b8" strokeWidth="3.5" strokeLinecap="round" />
+          <line x1={kneeR.x} y1={kneeR.y} x2={pose.wheelR.x} y2={wheelY - 1} stroke="#94a3b8" strokeWidth="3.5" strokeLinecap="round" />
+          <circle cx={pose.wheelL.x} cy={wheelY} r={r} className="robot-wheel" style={{ fill: '#1f2937' }} />
+          <circle cx={pose.wheelR.x} cy={wheelY} r={r} className="robot-wheel" style={{ fill: '#1f2937' }} />
+          <circle cx={pose.wheelL.x} cy={wheelY} r="3" fill="#9ca3af" />
+          <circle cx={pose.wheelR.x} cy={wheelY} r="3" fill="#9ca3af" />
+          <line x1={pose.wheelR.x} y1={wheelY} x2={pose.wheelR.x + force} y2={wheelY} stroke="#dc2626" strokeWidth="5" />
           <text x="370" y="214" textAnchor="middle" className="anim-subtext">{labels[1]}：姿态与接触几何同步</text>
         </g>
       );
@@ -576,7 +838,7 @@ function ComparisonScene({ entry, playing, completed, reducedMotion, markerId }:
       <ArrowMarker id={markerId} />
       <text x="380" y="18" textAnchor="middle" className="compare-title">{entry.chapterConfig.title}</text>
       <rect x="24" y="28" width="344" height="210" rx="6" className="compare-panel healthy" />
-      <rect x="392" y="28" width="344" height="210" rx="6" className="compare-panel faulty" />
+      <rect x="392" y="28" width="344" height="210" rx="6" className={`compare-panel faulty ${playing && !reducedMotion ? 'inline-fault-warn' : ''}`} />
       <text x="196" y="55" textAnchor="middle" className="compare-title healthy">正确：契约成立</text>
       <text x="564" y="55" textAnchor="middle" className="compare-title faulty">故障：诊断触发</text>
       <ComparisonGeometry
@@ -607,8 +869,8 @@ function ComparisonGeometry({ entry, labels, items, marker, playing, completed, 
     case 'signalPlot':
       return (
         <g>
-          <path d="M52 158 C88 92 126 92 162 158 S236 224 272 158 S326 110 344 138" fill="none" stroke="#16a34a" strokeWidth="4" />
-          <path d="M420 155 L450 91 L482 201 L515 76 L550 218 L590 88 L628 210 L706 68" fill="none" stroke="#dc2626" strokeWidth="4" />
+          <path d="M52 158 C88 92 126 92 162 158 S236 224 272 158 S326 110 344 138" fill="none" stroke="#16a34a" strokeWidth="4" pathLength={1} className={`inline-draw-path ${playing && !reducedMotion ? 'is-drawing' : ''}`} />
+          <path d="M420 155 L450 91 L482 201 L515 76 L550 218 L590 88 L628 210 L706 68" fill="none" stroke="#dc2626" strokeWidth="4" pathLength={1} className={`inline-draw-path inline-draw-fault ${playing && !reducedMotion ? 'is-drawing' : ''}`} />
           <line x1="48" y1="190" x2="344" y2="190" className="parameter-axis" />
           <line x1="416" y1="190" x2="708" y2="190" className="parameter-axis" />
           <text x="196" y="220" textAnchor="middle" className="anim-subtext">{left}：收敛且平滑</text>
@@ -696,36 +958,55 @@ function ComparisonGeometry({ entry, labels, items, marker, playing, completed, 
           <text x="564" y="222" textAnchor="middle" className="anim-subtext">反馈断裂，控制量越界</text>
         </g>
       );
-    case 'robotView':
+    case 'robotView': {
+      // 真实比例正视图：scale 280 px/m，地面 y=194，健康/故障中心 x=196/564
+      const poseH = upkiePose(280, 194, 196);
+      const poseF = upkiePose(280, 194, 564);
+      // 旋转中心 = 轮轴中点（与新几何一致；CSS transform-origin 为 197/563,178，差 2px 可忽略）
+      const pivot = (cx: number, pose: UpkiePose) => ({ x: cx, y: pose.wheelL.y });
+      const robot = (pose: UpkiePose, faulty: boolean) => (
+        <g>
+          <circle cx={pose.wheelL.x} cy={pose.wheelL.y} r={pose.r} className={`robot-wheel ${faulty ? 'faulty' : ''}`} style={faulty ? undefined : { fill: '#1f2937' }} />
+          <circle cx={pose.wheelR.x} cy={pose.wheelR.y} r={pose.r} className={`robot-wheel ${faulty ? 'faulty' : ''}`} style={faulty ? undefined : { fill: '#1f2937' }} />
+          <circle cx={pose.wheelL.x} cy={pose.wheelL.y} r="2.6" fill="#9ca3af" />
+          <circle cx={pose.wheelR.x} cy={pose.wheelR.y} r="2.6" fill="#9ca3af" />
+          <rect x={pose.body.x} y={pose.body.y} width={pose.body.w} height={pose.body.h} rx="7" fill="#f5e6d8" stroke="#c2703d" strokeWidth="1.8" />
+          <rect x={pose.handle.x} y={pose.handle.y} width={pose.handle.w} height={pose.handle.h} rx="2.5" fill="#c2703d" />
+          {([
+            [pose.hipL, pose.kneeL, pose.wheelL],
+            [pose.hipR, pose.kneeR, pose.wheelR],
+          ] as Array<[UpkiePoint, UpkiePoint, UpkiePoint]>).map(([hip, knee, wheel], i) => (
+            <g key={`${faulty ? 'f' : 'h'}-leg-${i}`}>
+              <line x1={hip.x} y1={hip.y} x2={knee.x} y2={knee.y} stroke="#94a3b8" strokeWidth="3" strokeLinecap="round" />
+              <line x1={knee.x} y1={knee.y} x2={wheel.x} y2={wheel.y - 1} stroke="#94a3b8" strokeWidth="3" strokeLinecap="round" />
+              <circle cx={hip.x} cy={hip.y} r="3" fill="#7c2d12" />
+              <circle cx={knee.x} cy={knee.y} r="2.4" fill="#7c2d12" />
+            </g>
+          ))}
+        </g>
+      );
       return (
         <g>
           <line x1="48" y1="194" x2="344" y2="194" className="parameter-axis" />
-          <circle cx="160" cy="180" r="24" className="robot-wheel" />
-          <circle cx="232" cy="180" r="24" className="robot-wheel" />
-          <line
-            x1="196"
-            y1="168"
-            x2="196"
-            y2="82"
+          <g
             className={`compare-robot healthy ${playing ? 'is-playing' : ''}`}
-            transform={reducedMotion || completed ? 'rotate(-2 196 168)' : undefined}
-          />
+            transform={reducedMotion || completed ? `rotate(-2 ${pivot(196, poseH).x} ${pivot(196, poseH).y})` : undefined}
+          >
+            {robot(poseH, false)}
+          </g>
           <line x1="416" y1="194" x2="708" y2="194" stroke="#dc2626" strokeWidth="2" strokeDasharray="10 5" />
-          <circle cx="528" cy="180" r="24" className="robot-wheel faulty" />
-          <circle cx="600" cy="180" r="24" className="robot-wheel faulty" />
-          <line
-            x1="564"
-            y1="168"
-            x2="564"
-            y2="82"
+          <g
             className={`compare-robot faulty ${playing ? 'is-playing' : ''}`}
-            transform={reducedMotion || completed ? 'rotate(28 564 168)' : undefined}
-          />
-          <line x1="600" y1="180" x2="684" y2="180" stroke="#dc2626" strokeWidth="5" markerEnd={marker} />
+            transform={reducedMotion || completed ? `rotate(28 ${pivot(564, poseF).x} ${pivot(564, poseF).y})` : undefined}
+          >
+            {robot(poseF, true)}
+          </g>
+          <line x1={poseF.wheelR.x} y1={poseF.wheelR.y} x2={poseF.wheelR.x + 42} y2={poseF.wheelR.y} stroke="#dc2626" strokeWidth="5" markerEnd={marker} />
           <text x="196" y="224" textAnchor="middle" className="anim-subtext">接触正确，传感器有效</text>
           <text x="564" y="224" textAnchor="middle" className="anim-subtext">滑移 / 跌倒 / 观测异常</text>
         </g>
       );
+    }
   }
 }
 
@@ -829,6 +1110,8 @@ function EvidenceScene({ entry }: { entry: CourseAnimationEntry }) {
   return (
     <figure className="evidence-figure">
       <img
+        key={revision}
+        className="inline-figure-in"
         src={`${ARTIFACT_BASE}${path}?v=${revision}`}
         alt={`${entry.chapterId} 固定 seed 验收图表`}
         onError={() => setMissing(true)}

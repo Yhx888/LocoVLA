@@ -20,10 +20,16 @@ jobs:
             libegl1 libgl1-mesa-dri libgles2 libglfw3 libosmesa6 \
             fonts-noto-cjk
           sudo fc-cache -f
-      - name: 安装依赖
+      - name: 安装依赖（唯一权威锁：requirements.lock）
+        # requirements.lock 由 `uv pip compile pyproject.toml --all-extras` 生成，
+        # 已含全部运行时与开发依赖（pytest 等），是 CI 与本地启动的唯一固定依赖来源。
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt -r requirements-dev.txt
+          pip install -r requirements.lock
+      - name: 代码风格门禁（ruff）
+        # 轻量静态门禁：未用导入、未定义名、pathlib 规范等可静态检查项。
+        # 规则与阈值以 pyproject.toml 的 [tool.ruff] 为准；违规即失败，在 push/PR 上阻断。
+        run: ruff check .
       - name: Python 编译检查
         run: python -m compileall -q src scripts tests dashboard
       - name: 课程事实漂移检查

@@ -21,7 +21,6 @@
 import argparse
 import math
 import sys
-from threading import Thread
 
 import rclpy
 from rclpy.node import Node

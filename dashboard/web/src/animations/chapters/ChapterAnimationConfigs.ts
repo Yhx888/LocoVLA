@@ -185,9 +185,9 @@ export const CHAPTER_ANIMATIONS: Record<string, ChapterAnimationConfig> = {
       { key: 'timestep', label: '仿真步数', min: 1, max: 50 },
     ],
     items: [
-      { type: 'sensor', label: 'base_position', x: 60, y: 40 },
-      { type: 'sensor', label: 'joint_velocity', x: 200, y: 40 },
-      { type: 'sensor', label: 'imu_accelerometer', x: 340, y: 40 },
+      { type: 'sensor', label: '基座位置', x: 60, y: 40 },
+      { type: 'sensor', label: '关节速度', x: 200, y: 40 },
+      { type: 'sensor', label: 'IMU加速度计', x: 340, y: 40 },
     ],
   },
   '07': {

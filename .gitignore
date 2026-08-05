@@ -68,11 +68,16 @@ outputs/tensorboard/*
 # 飞书 CLI 临时参数
 _lark_params_*.json
 
+# AI 助教本地 API key（不入 Git）
+configs/course/ai.local.json
+
 # git 本地拷贝
 assets/upkie/upkie_description/.git.localcopy/
 
 # AI 工具与会话缓存
+.agents/
 .claude/
+.qoder/
 .reasonix/
 .superpowers/
 .trae/
@@ -91,3 +96,6 @@ log/
 ros2_ws/build/
 ros2_ws/install/
 ros2_ws/log/
+
+# Proma 项目级 Context（AGENTS.md 的自动镜像，勿入库）
+.context/

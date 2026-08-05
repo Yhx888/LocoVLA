@@ -22,7 +22,6 @@ import sys
 from pathlib import Path
 from unittest.mock import patch
 
-import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts" / "tools"))
@@ -143,7 +142,6 @@ class TestRecursionGuard:
     def test_coverage_command_excludes_self(self):
         """覆盖率 pytest 命令应排除 test_code_review.py。"""
         from run_code_review import coverage_analysis
-        import run_code_review
         # 检查源码中的命令构造确实包含排除参数
         import inspect
         source = inspect.getsource(coverage_analysis)

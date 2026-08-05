@@ -87,7 +87,6 @@ def main() -> int:
     control_limit = 1.0
     tighter_limit = 0.35  # 受限 MPC 的更严格约束（刷无 LQR 的最大力矩以触发饱和）
 
-    rng = np.random.default_rng(args.seed)
     disturbance = np.zeros((steps, 4))
     disturbance[10, 0] = 0.08  # 一次俯仰扰动脉冲（重到足以触发多步饱和）
     disturbance[80, 2] = 0.05
@@ -237,7 +236,7 @@ def main() -> int:
         "# 24 关：MPC vs LQR 闭环对照报告",
         "",
         f"- 采样周期：{dt} s，仿真步数：{steps}",
-        f"- 状态：pitch, pitch_rate, x, x_dot",
+        "- 状态：pitch, pitch_rate, x, x_dot",
         f"- 输入限幅（LQR/MPC）: ±{control_limit} N*m；受限 MPC: ±{tighter_limit} N*m + pitch ∈ [-0.20, 0.20]",
         "",
         "| 指标 | LQR | MPC | 受限 MPC |",

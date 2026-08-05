@@ -4,7 +4,6 @@
 """
 
 import pytest
-from pathlib import Path
 from upkie_mujoco_course.web.content import (
     load_chapter_markdown,
     parse_self_check_items,

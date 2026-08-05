@@ -5,8 +5,11 @@ import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
 import remarkMath from 'remark-math';
 import type { Components } from 'react-markdown';
+import { RotateCcw } from 'lucide-react';
 import { useRunCoordinator } from '../../run/RunCoordinator';
 import InlineCourseAnimation from '../../animations/InlineCourseAnimation';
+import QaAnswerBox from './QaAnswerBox';
+import { extractQuestionBefore, parseMarkdownSegments } from './markdownSegments';
 
 interface MarkdownViewProps {
   content: string;
@@ -24,7 +27,7 @@ function RunnableCodeBlock({ commands, chapterId, lang, children, onExperimentCo
   const [currentCommand, setCurrentCommand] = useState(0);
   const instanceId = useId();
   const logContainerRef = useRef<HTMLDivElement>(null);
-  const { activeOwnerId, tasks, startRun } = useRunCoordinator();
+  const { activeOwnerId, tasks, startRun, resetTask } = useRunCoordinator();
   const ownerId = useMemo(
     () => `code:${chapterId ?? 'unknown'}:${instanceId}`,
     [chapterId, instanceId],
@@ -79,9 +82,23 @@ function RunnableCodeBlock({ commands, chapterId, lang, children, onExperimentCo
       </pre>
       <div className="lesson-code-block-actions">
         <span>{isBatch ? `共 ${commands.length} 个实验，按顺序运行` : '运行此实验'}</span>
-        <button type="button" onClick={handleRun} disabled={isRunning || occupiedByOther}>
-          {buttonLabel}
-        </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button type="button" onClick={handleRun} disabled={isRunning || occupiedByOther}>
+            {buttonLabel}
+          </button>
+          {(runState === 'succeeded' || runState === 'failed') && (
+            <button
+              type="button"
+              onClick={() => resetTask(ownerId)}
+              disabled={isRunning || occupiedByOther}
+              title="重置实验状态，恢复未运行"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'transparent' }}
+            >
+              <RotateCcw size={12} />
+              重置
+            </button>
+          )}
+        </div>
       </div>
       {snapshot && runState !== 'idle' && (
         <div ref={logContainerRef} className="lesson-code-block-log" aria-live="polite">
@@ -118,10 +135,7 @@ function extractRunnableCommands(text: string): string[] | null {
 }
 
 export default function MarkdownView({ content, chapterId, onExperimentComplete }: MarkdownViewProps) {
-  const segments = useMemo(
-    () => content.split(/<!--\s*upkie-animation:([a-z0-9-]+)\s*-->/g),
-    [content],
-  );
+  const segments = useMemo(() => parseMarkdownSegments(content), [content]);
   // components 必须用 useMemo 稳定引用：react-markdown v9 会把这里的渲染函数当作
   // 元素类型，如果每次渲染都重建，运行结束后父组件刷新章节会触发 RunnableCodeBlock
   // 被卸载重建（useId 重新生成、ownerId 变化），运行结果框因此消失。
@@ -165,18 +179,36 @@ export default function MarkdownView({ content, chapterId, onExperimentComplete 
 
   return (
     <div className="prose prose-sm max-w-none prose-headings:font-semibold prose-h1:text-xl prose-h2:text-lg prose-h3:text-base prose-a:text-blue-600 prose-pre:bg-transparent prose-pre:p-0">
-      {segments.map((segment, index) => index % 2 === 1
-        ? <InlineCourseAnimation key={`animation-${segment}`} animationId={segment} />
-        : (
+      {segments.map((segment, index) => {
+        if (segment.type === 'animation') {
+          return <InlineCourseAnimation key={`animation-${segment.id}-${index}`} animationId={segment.id} />;
+        }
+        if (segment.type === 'qa') {
+          const previous = segments[index - 1];
+          const question = previous && previous.type === 'markdown'
+            ? extractQuestionBefore(previous.content)
+            : '';
+          return (
+            <QaAnswerBox
+              key={`qa-${segment.id}`}
+              qaId={segment.id}
+              question={question}
+              answer={segment.answer}
+              chapterId={chapterId}
+            />
+          );
+        }
+        return (
           <ReactMarkdown
             key={`markdown-${index}`}
             remarkPlugins={[remarkGfm, remarkMath]}
             rehypePlugins={[rehypeKatex, rehypeRaw]}
             components={components}
           >
-            {segment}
+            {segment.content}
           </ReactMarkdown>
-        ))}
+        );
+      })}
     </div>
   );
 }

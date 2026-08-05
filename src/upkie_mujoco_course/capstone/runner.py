@@ -519,7 +519,6 @@ def _e2e_run_physics(sim_data: dict[str, Any], log_lines: list[str]) -> dict[str
         if root_joint_id < 0:
             raise RuntimeError(f"未找到自由基座 joint: {spec.root_joint_name}")
         qpos_adr = int(model.jnt_qposadr[root_joint_id])
-        qvel_adr = int(model.jnt_dofadr[root_joint_id])
 
         # 设置初始姿态（stand 姿态）
         mujoco.mj_resetData(model, data)
@@ -913,30 +912,22 @@ def _e2e_run_realtime(sim_data: dict[str, Any], log_lines: list[str]) -> dict[st
     expected_fields = set(engineering_contract.REQUIRED_LOG_FIELDS)
     sample_count = 200  # 生成 200 个日志样本
     try:
-        import numpy as np
 
         # 从 physics 仿真数据采样
         pitch_data = sim_data.get("physics", {}).get("base_pitch", [])
-        time_data = sim_data.get("physics", {}).get("time", [])
         torque_data = sim_data.get("physics", {}).get("torques", [])
 
         log_records = []
         base_ns = int(time.time() * 1e9)  # 基准时间戳（纳秒）
-        prev_ts = base_ns
-        timestamp_monotonic = True
 
         for i in range(sample_count):
             # 从仿真数据循环采样
             idx = i % len(pitch_data) if pitch_data else 0
             pitch = float(pitch_data[idx]) if pitch_data else 0.0
-            t = float(time_data[idx]) if time_data else float(i) * 0.01
             torque_left = float(torque_data[idx][-2]) if torque_data and len(torque_data[idx]) >= 2 else 0.0
 
-            # 时间戳必须严格单调递增（每周期增加 10ms = 10_000_000 ns）
+            # 时间戳每周期增加 10ms = 10_000_000 ns，保证严格单调递增（单调性在循环外统一校验）
             ts_ns = base_ns + i * 10_000_000
-            if ts_ns <= prev_ts:
-                timestamp_monotonic = False
-            prev_ts = ts_ns
 
             record = {
                 "timestamp_ns": ts_ns,

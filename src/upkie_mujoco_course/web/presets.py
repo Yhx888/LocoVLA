@@ -73,7 +73,6 @@ def get_chapter_presets(chapter_id: str) -> list[RunPreset]:
 
 def validate_command(command: str) -> bool:
     """校验命令是否安全：必须在 scripts/ 目录内。"""
-    import re
 
     parts = command.strip().split()
     if not parts:

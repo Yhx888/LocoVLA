@@ -1,16 +1,18 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Play, Square, CheckCircle2, Code2 } from 'lucide-react';
 import type { CheckpointDto, RunStatus } from '../../api/types';
+import { resetExperiment } from '../../api/client';
 import { useRunCoordinator } from '../../run/RunCoordinator';
 
 interface RunnerPanelProps {
   chapterId: string;
   checkpoints: CheckpointDto[];
+  experimentAccepted?: boolean;
   onExperimentComplete: () => void;
   customCommands?: { label: string; command: string }[];
 }
 
-export default function RunnerPanel({ chapterId, checkpoints, onExperimentComplete, customCommands }: RunnerPanelProps) {
+export default function RunnerPanel({ chapterId, checkpoints, experimentAccepted, onExperimentComplete, customCommands }: RunnerPanelProps) {
   const [activeCheckpoint, setActiveCheckpoint] = useState<string | null>(null);
   const [selectedOwnerId, setSelectedOwnerId] = useState<string | null>(null);
   // 记住最近一次展示过的任务，运行结束后保持结果不收起（含在正文代码块里发起的运行）
@@ -38,6 +40,9 @@ export default function RunnerPanel({ chapterId, checkpoints, onExperimentComple
   );
 
   const [completedChecks, setCompletedChecks] = useState<Set<string>>(new Set());
+  // 后端"实验验收通过"视为该章全部 checkpoint 已完成（刷新后仍保持完成态）
+  const isCheckpointDone = (checkpointId: string) =>
+    completedChecks.has(checkpointId) || experimentAccepted === true;
   const logEndRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     logEndRef.current?.scrollIntoView?.({ behavior: 'smooth' });
@@ -60,13 +65,23 @@ export default function RunnerPanel({ chapterId, checkpoints, onExperimentComple
     if (visibleOwnerId) await cancelTask(visibleOwnerId);
   }, [cancelTask, visibleOwnerId]);
 
-  const handleReset = useCallback(() => {
+  const handleReset = useCallback(async () => {
+    // 后端有验收通过记录时先删除，避免刷新后状态回弹
+    if (experimentAccepted) {
+      try {
+        await resetExperiment(chapterId);
+      } catch {
+        // 后端删除失败不阻塞本地重置，用户仍可重新实验
+      }
+    }
     if (selectedOwnerId) resetTask(selectedOwnerId);
     setActiveCheckpoint(null);
     setSelectedOwnerId(null);
     setStickyOwnerId(null);
     setCompletedChecks(new Set());
-  }, [resetTask, selectedOwnerId]);
+    // 通知父组件刷新章节数据与左侧树（experiment_accepted 回 false）
+    onExperimentComplete();
+  }, [experimentAccepted, chapterId, onExperimentComplete, resetTask, selectedOwnerId]);
 
   const hasCheckpoints = uniqueCheckpoints && uniqueCheckpoints.length > 0;
   const hasCustomCommands = customCommands && customCommands.length > 0;
@@ -97,20 +112,33 @@ export default function RunnerPanel({ chapterId, checkpoints, onExperimentComple
         </div>
       )}
 
+      {(completedChecks.size > 0 || experimentAccepted === true) && (
+        <div className="flex justify-end mb-2">
+          <button
+            type="button"
+            onClick={handleReset}
+            className="text-xs px-2 py-1 text-gray-500 hover:bg-gray-100 rounded transition-colors"
+            title="重置实验完成状态，恢复未运行"
+          >
+            重置实验状态
+          </button>
+        </div>
+      )}
+
       {uniqueCheckpoints.map((cp) => (
-        <div key={cp.id} className={`checkpoint-card ${completedChecks.has(cp.id) ? 'border-green-300' : ''}`}>
+        <div key={cp.id} className={`checkpoint-card ${isCheckpointDone(cp.id) ? 'border-green-300' : ''}`}>
           <div className="checkpoint-header">
             <span className="checkpoint-label">
               {cp.id === 'automatic_acceptance' ? '自动验收' : cp.id.replace(/_/g, ' ')}
             </span>
             <button
-              className={`run-btn ${activeCheckpoint === cp.id ? 'running' : ''} ${completedChecks.has(cp.id) ? 'done' : ''}`}
+              className={`run-btn ${activeCheckpoint === cp.id ? 'running' : ''} ${isCheckpointDone(cp.id) ? 'done' : ''}`}
               onClick={() => startRun(cp.id, cp.command)}
               disabled={globallyBusy}
             >
               {activeCheckpoint === cp.id && running ? (
                 <>运行中</>
-              ) : completedChecks.has(cp.id) ? (
+              ) : isCheckpointDone(cp.id) ? (
                 <>已完成 <CheckCircle2 size={12} /></>
               ) : (
                 <><Play size={12} /> {globallyBusy ? '当前任务占用中' : status === 'failed' ? '重跑' : '运行'}</>

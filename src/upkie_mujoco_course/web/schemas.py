@@ -73,3 +73,43 @@ class RunEvent(BaseModel):
     stream: str = ""
     text: str
     status: str | None = None
+
+
+class AiChatMessage(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str
+
+
+class AiExplainRequest(BaseModel):
+    chapter_id: str = ""
+    chapter_title: str = ""
+    selected_text: str = ""
+    context: str = ""
+    question: str = ""
+    history: list[AiChatMessage] = Field(default_factory=list)
+
+
+class AiGradeRequest(BaseModel):
+    chapter_id: str = ""
+    question_id: str = ""
+    question: str
+    reference_answer: str
+    user_answer: str
+
+
+class AiGradeResult(BaseModel):
+    score: int = Field(ge=0, le=10)
+    comment: str = ""
+    gaps: list[str] = Field(default_factory=list)
+
+
+class AiConfigRequest(BaseModel):
+    """前端配置面板提交的 AI 服务配置。
+
+    api_key 为空字符串表示保留服务器上已有的 key；base_url / model 为空时保留现值。
+    """
+
+    api_key: str = ""
+    base_url: str = ""
+    model: str = ""
+    enabled: bool = True

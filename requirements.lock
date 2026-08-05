@@ -211,6 +211,8 @@ rpds-py==2026.6.3
     # via
     #   jsonschema
     #   referencing
+ruff==0.16.0
+    # via upkie-mujoco-course (pyproject.toml)
 scipy==1.17.1
     # via upkie-mujoco-course (pyproject.toml)
 setuptools==83.0.0

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import sys
 import importlib.metadata
-from pathlib import Path
 
 from upkie_mujoco_course.utils.paths import resolve_project_path
 

@@ -196,7 +196,6 @@ def _chapter_20(plot_path: Path, seed: int = 0) -> tuple[dict, dict, dict]:
     rng = np.random.default_rng(seed)
     dt = 0.01
     time = np.arange(0.0, 6.0, dt)
-    true_rate = 0.25 * np.cos(0.8 * time)
     true_angle = 0.25 * np.sin(0.8 * time)
     measurements = true_angle + rng.normal(0.0, 0.08, size=time.size)
     filter_ = LinearKalmanFilter(

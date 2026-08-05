@@ -117,19 +117,19 @@ VLA（Vision-Language-Action）相关接口仅以桩函数形式存在于 `src/u
 
 ## 6. 版本锁定（可复现性）
 
-为支持长期可复现性，项目提供 `requirements.lock` 文件，锁定当前已验证的依赖版本组合。
+为避免“两份不一致的依赖来源”，项目以 `requirements.lock` 为**唯一权威安装来源**：CI（GitHub Actions）与本地一键启动（`start.ps1`）均从它安装，从而保证两边解析出的关键包版本完全一致。`requirements.txt` / `requirements-dev.txt` / `pyproject.toml` 是供人阅读的依赖**声明来源**（用 `>=` 兼容下限），也是重新生成 `requirements.lock` 的输入，不用于 CI / 启动的直接安装。
 
 | 文件 | 用途 | 安装命令 |
 |---|---|---|
-| `requirements.txt` | 开发环境，使用 `>=` 兼容下限 | `pip install -r requirements.txt` |
-| `requirements-dev.txt` | 开发工具依赖（pytest、pytest-cov、coverage） | `pip install -r requirements-dev.txt` |
-| `requirements.lock` | 精确复现已验证环境，锁定全部直接依赖的精确版本 | `pip install -r requirements.lock` |
+| `requirements.lock` | **唯一权威安装来源**：锁定全部直接与传递依赖的精确版本（含 pytest 等开发依赖） | `pip install -r requirements.lock` |
+| `requirements.txt` | 声明来源（运行时依赖，`>=` 兼容下限），与 `pyproject.toml` 保持同步 | （仅声明/重生锁用） |
+| `requirements-dev.txt` | 声明来源（开发工具：pytest、pytest-cov、coverage） | （仅声明/重生锁用） |
 
 ### 使用场景
 
-- **开发新功能**：使用 `requirements.txt` + `requirements-dev.txt`，允许版本浮动
+- **CI/CD 与本地一键启动**：统一使用 `requirements.lock`，保证两边依赖版本完全一致、构建可复现
 - **复现实验结果**：使用 `requirements.lock`，确保依赖版本完全一致
-- **CI/CD**：使用 `requirements.lock`，保证构建环境可复现
+- **升级依赖**：修改 `pyproject.toml` / `requirements*.txt` 声明，再用上方 `uv pip compile` 命令重新生成 `requirements.lock`
 
 ### 当前已验证版本（2026-07-17）
 

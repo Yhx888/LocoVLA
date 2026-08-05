@@ -467,9 +467,9 @@ def format_report(
     lines.append("## 2. 覆盖率分析\n")
     if coverage_result.get("available"):
         lines.append(f"- pytest-cov 可用，行覆盖率：`{coverage_result['percent_covered']:.1f}%`")
-        lines.append(f"- 通过门槛：`>= 50%`")
+        lines.append("- 通过门槛：`>= 50%`")
     else:
-        lines.append(f"- **未安装 pytest-cov，跳过覆盖率分析**")
+        lines.append("- **未安装 pytest-cov，跳过覆盖率分析**")
         lines.append(f"- 说明：`{coverage_result.get('note', '')}`")
         lines.append("- 评审通过条件已降级为「无语法错误」")
     lines.append("")

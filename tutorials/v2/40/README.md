@@ -74,9 +74,28 @@ python scripts/course_checkpoint.py --chapter 40
 ## 复盘与面试
 
 1. `reliable` 和 `best_effort` QoS 策略在控制环场景下各有什么代价？如果你的 IMU 以 200 Hz 发布而控制节点只消费 100 Hz，选择哪种 QoS 更合理？订阅端与发布端 QoS 不匹配时 ROS2 会报什么错误？
+
+<!-- upkie-qa:40-q1 -->
+`reliable` 保证消息不丢，代价是发布端会缓存未确认的消息，当订阅端处理不过来时内存持续增长，控制环里这意味着"用旧数据换不丢失"——但 10 ms 前的 IMU 姿态对 100 Hz 控制环已经没有价值，用旧数据反而引入延迟。`best_effort` 不保证送达，发布端不缓存，代价是丢包，但控制环天然有周期性冗余：100 Hz 意味着每 10 ms 就有一帧新数据，丢一帧最多等 10 ms，比用 50 ms 前的旧数据更安全。IMU 200 Hz、控制节点 100 Hz 的场景下，`best_effort` 更合理——订阅端本来就只消费一半的消息，`reliable` 的缓存机制只会积累永远用不到的帧。本关的故障诊断挑战里提到"若没有 `/wheel_torque`，先确认话题名和 QoS 是否匹配"，QoS 不匹配时 ROS2 的行为是：订阅端收不到任何消息，`ros2 topic echo /wheel_torque` 无输出，`ros2 doctor --report` 会报 QoS incompatibility，但不会抛出异常或打印明显错误日志——这是最隐蔽的故障模式，节点看起来在运行，实际上话题链路从未建立。面试时的判断框架：传感器数据（IMU、相机）用 `best_effort`，命令和状态（急停指令、模式切换）用 `reliable`。常见误区是"全部用 `reliable` 最安全"——在控制环里，`reliable` 的缓存延迟比丢包更危险。
+<!-- /upkie-qa -->
+
 2. 控制节点的定时器回调与消息回调在同一 executor 线程中竞争执行时，最坏情况下的控制延迟是多少？你会用 `MultiThreadedExecutor` 还是回调分组（`ReentrantCallbackGroup`/`MutuallyExclusiveCallbackGroup`）来解决？各自的线程安全代价是什么？
+
+<!-- upkie-qa:40-q2 -->
+单线程 executor（`SingleThreadedExecutor`）里所有回调串行执行：如果 IMU 消息回调正在处理（四元数转俯仰角、写控制状态），100 Hz 定时器回调必须等它结束才能发动力矩。最坏情况延迟 = 消息回调的最长执行时间 + 定时器周期 10 ms——如果消息回调因为某种原因卡住 5 ms，控制延迟就是 15 ms，超出一个周期。`MultiThreadedExecutor` 让多个回调并行，但默认情况下同一个 `MutuallyExclusiveCallbackGroup` 里的回调仍然串行（这是正确的，因为 IMU 回调写控制状态、定时器回调读控制状态，并行会产生数据竞争）；要让定时器不被消息回调阻塞，需要把两者放进不同的 `ReentrantCallbackGroup`，代价是必须自己用 `std::mutex` 或原子变量保护共享的控制状态，否则俯仰角写到一半被定时器读走，得到撕裂值。本关的控制状态是四元数转出的俯仰角和 y 轴角速度，这两个量在 IMU 回调里写、定时器回调里读，是最典型的竞争点。面试时的判断框架：先问"哪些回调共享状态"，共享的放同一个 `MutuallyExclusiveCallbackGroup`，不共享的才分开；`MultiThreadedExecutor` 不是银弹，用错了比单线程更危险（数据竞争是未定义行为）。常见误区是"多线程一定更快"——如果所有回调都在同一个互斥组里，`MultiThreadedExecutor` 和单线程没有区别，还多了线程切换开销。
+<!-- /upkie-qa -->
+
 3. `colcon build --packages-select` 只编译当前包，`--packages-up-to` 编译到当前包为止的全部依赖。当上游包的接口变更但你的包编译未报错时，问题最可能出在 `package.xml` 的哪种依赖声明上？如何排查？
+
+<!-- upkie-qa:40-q3 -->
+最可能出在 `<depend>` 和 `<build_depend>` 的混用，或者根本漏声明了依赖。`package.xml` 里 `<depend>` 表示编译和运行都需要，`<build_depend>` 只表示编译需要，`<exec_depend>` 只表示运行需要。如果上游包（比如定义 `/imu` 消息类型的 `sensor_msgs`）的接口变了，但你的 `package.xml` 里没有正确声明对它的依赖，`colcon build --packages-select my_package` 就不会重新编译上游包，你的包链接的还是旧版本的头文件——编译通过，但运行时消息字段对不上，表现为订阅到的数据全是零或者字段缺失。排查顺序：第一步 `colcon build --packages-up-to my_package` 强制重编所有依赖，看问题是否消失；第二步检查 `package.xml` 里是否漏了 `<depend>upstream_package</depend>`；第三步用 `colcon graph` 打印实际依赖图，确认上游包在图里；第四步 `ros2 interface show sensor_msgs/Imu` 确认运行时的消息定义和编译时一致。本关的故障诊断里"若控制输出始终只随角速度变化，检查四元数到俯仰角的转换是否真正写入控制状态"就是这类问题的运行时表现——接口字段对不上，四元数从未被正确读取。面试时的判断框架：`--packages-select` 适合快速迭代单包，`--packages-up-to` 适合接口变更后的完整验证，CI 里必须用后者。常见误区是"编译通过就没问题"——C++ 的头文件兼容性检查很弱，字段顺序变了、类型从 `float64` 改成 `float32` 都可能编译通过但运行出错。
+<!-- /upkie-qa -->
+
 4. lifecycle 节点的 `on_configure -> on_activate -> on_deactivate -> on_cleanup` 状态机对控制节点有什么实际价值？在什么场景下普通节点就够了，不值得引入 lifecycle 管理？请用一个具体例子说明。
+
+<!-- upkie-qa:40-q4 -->
+lifecycle 节点的核心价值是启动顺序可控和故障恢复有明确路径。本关的控制节点依赖 `/imu` 话题，如果用普通节点，节点一启动就开始发 `/wheel_torque`，但此时 IMU 驱动可能还没就绪，控制节点用全零姿态发动力矩，机器人可能在启动瞬间收到错误指令。lifecycle 节点的 `on_configure` 阶段加载参数（增益、限幅值），`on_activate` 阶段才启动 100 Hz 定时器并开始发布——外部启动脚本可以等 IMU 驱动 `activate` 之后再 `activate` 控制节点，保证数据流就绪。`on_deactivate` 提供安全停止路径：不是直接杀进程，而是先停止发布、再等待当前周期结束，避免在力矩输出中途断开。`on_cleanup` 释放资源。普通节点够用的场景：节点没有外部依赖顺序要求，或者失败后果不严重。具体例子：一个只发布诊断信息（`/diagnostics`）的节点，晚启动几秒或重启一次都没有安全影响，用普通节点加一个 `while not ready: sleep` 的等待循环就够了，引入 lifecycle 反而增加了状态机调试成本。面试时的判断框架：问"这个节点启动顺序错了会怎样"——如果答案是"机器人可能受伤或损坏"，用 lifecycle；如果只是"日志少了几条"，普通节点就够。常见误区是"lifecycle 更专业所以都用"——状态机本身也是 bug 来源，`on_deactivate` 里忘记停止定时器导致僵尸回调是很典型的 lifecycle 误用。
+<!-- /upkie-qa -->
 
 ## 下一关
 

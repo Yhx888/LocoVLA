@@ -1,7 +1,7 @@
 // 注："取消"按钮始终设 reading_complete=false，不 toggle
 import { useState, useEffect, useCallback } from 'react';
-import { CheckCircle2, Circle, BookOpen, FlaskConical } from 'lucide-react';
-import { updateProgress } from '../../api/client';
+import { CheckCircle2, Circle, BookOpen, FlaskConical, RotateCcw } from 'lucide-react';
+import { resetExperiment, updateProgress } from '../../api/client';
 import type { SelfCheckItem } from '../../api/types';
 
 interface ProgressPanelProps {
@@ -96,6 +96,17 @@ export default function ProgressPanel({
     }
   }, [chapterId, currentReadingPercent, items, onProgressUpdate, markedReading]);
 
+  const [resetting, setResetting] = useState(false);
+  const handleResetExperiment = useCallback(async () => {
+    setResetting(true);
+    try {
+      await resetExperiment(chapterId);
+      onProgressUpdate();
+    } finally {
+      setResetting(false);
+    }
+  }, [chapterId, onProgressUpdate]);
+
   return (
     <div className="space-y-6">
       <div>
@@ -178,10 +189,22 @@ export default function ProgressPanel({
         </h4>
         <div className="flex items-center gap-2">
           {experimentAccepted ? (
-            <span className="flex items-center gap-1 text-xs text-green-600">
-              <CheckCircle2 size={14} />
-              实验验收已通过
-            </span>
+            <>
+              <span className="flex items-center gap-1 text-xs text-green-600">
+                <CheckCircle2 size={14} />
+                实验验收已通过
+              </span>
+              <button
+                type="button"
+                onClick={handleResetExperiment}
+                disabled={resetting}
+                className="flex items-center gap-1 px-2 py-1 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors text-xs"
+                title="重置实验验收状态"
+              >
+                <RotateCcw size={12} />
+                {resetting ? '重置中...' : '重置'}
+              </button>
+            </>
           ) : (
             <span className="flex items-center gap-1 text-xs text-gray-400">
               <Circle size={14} />

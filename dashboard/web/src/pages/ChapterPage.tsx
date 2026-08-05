@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import {
   ArrowLeft, BookOpen, Play, FileText,
   PanelRightOpen, X,
-  ChevronDown, ChevronRight, Maximize2, Terminal
+  ChevronDown, ChevronRight, Maximize2, Terminal, Sparkles
 } from 'lucide-react'
 import type { ChapterDto, StageSummary, RunRecord } from '../api/types'
 import { getChapter, getCourseSummary, listRuns } from '../api/client'
@@ -13,10 +13,32 @@ import MarkdownView from '../components/course/MarkdownView'
 import ProgressPanel from '../components/course/ProgressPanel'
 import RunnerPanel from '../components/runner/RunnerPanel'
 import InlineCourseAnimation from '../animations/InlineCourseAnimation'
-import { animationsForChapter } from '../animations/chapters/ChapterAnimationConfigs'
+import AnimationLoader from '../animations/chapters/AnimationLoader'
+import { animationsForChapter, CHAPTER_ANIMATIONS } from '../animations/chapters/ChapterAnimationConfigs'
 import ResultsView from '../components/course/ResultsView'
+import AiAssistantPanel, { type ExplainRequest } from '../components/ai/AiAssistantPanel'
 
 type Tab = 'learn' | 'animation' | 'results'
+
+/* 内容入场统一缓动：expo 快出缓停 */
+const EASE_OUT_EXPO: [number, number, number, number] = [0.16, 1, 0.3, 1]
+
+// 用选中文本在原始 markdown 中定位，取前后各 500 字作为 AI 解释的上下文
+function extractContext(content: string, selectedText: string): string {
+  const probe = selectedText.slice(0, 60).trim()
+  if (!probe) return ''
+  const index = content.indexOf(probe)
+  if (index < 0) return ''
+  const start = Math.max(0, index - 500)
+  const end = Math.min(content.length, index + selectedText.length + 500)
+  return content.slice(start, end)
+}
+
+interface SelectionPopup {
+  x: number
+  y: number
+  text: string
+}
 
 export default function ChapterPage() {
   const { id } = useParams<{ id: string }>()
@@ -32,9 +54,15 @@ export default function ChapterPage() {
 
   const [s1Open, setS1Open] = useState(true)
   const [s3Open, setS3Open] = useState(true)
+  const [aiOpen, setAiOpen] = useState(false)
 
   const [selectedAnimation, setSelectedAnimation] = useState<string | null>(null)
   const [pendingAnimation, setPendingAnimation] = useState<string | null>(null)
+  const reduce = useReducedMotion()
+
+  const [selectionPopup, setSelectionPopup] = useState<SelectionPopup | null>(null)
+  const [explainRequest, setExplainRequest] = useState<ExplainRequest | null>(null)
+  const markdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const checkWidth = () => {
@@ -111,6 +139,48 @@ export default function ChapterPage() {
     setRunnerCollapsed(false)
   }, [])
 
+  // 教程正文圈选后浮出「AI 解释」按钮
+  const handleTextSelection = useCallback(() => {
+    window.setTimeout(() => {
+      const selection = window.getSelection()
+      const text = selection?.toString().trim() ?? ''
+      if (!selection || selection.isCollapsed || text.length < 2 || text.length > 2000) {
+        setSelectionPopup(null)
+        return
+      }
+      // 只响应教程正文内的选区
+      const anchor = selection.anchorNode
+      if (!anchor || !markdownRef.current?.contains(anchor)) {
+        setSelectionPopup(null)
+        return
+      }
+      const rect = selection.getRangeAt(0).getBoundingClientRect()
+      setSelectionPopup({
+        x: rect.left + rect.width / 2,
+        y: rect.top,
+        text,
+      })
+    }, 0)
+  }, [])
+
+  const handleExplainSelection = useCallback(() => {
+    if (!selectionPopup || !chapter) return
+    const context = extractContext(chapter.content, selectionPopup.text)
+    setExplainRequest({ text: selectionPopup.text, context, nonce: Date.now() })
+    setSelectionPopup(null)
+    setAiOpen(true)
+    setRunnerCollapsed(false)
+    window.getSelection()?.removeAllRanges()
+  }, [selectionPopup, chapter])
+
+  // 点击页面其他位置或滚动时关闭圈选按钮
+  useEffect(() => {
+    if (!selectionPopup) return
+    const dismiss = () => setSelectionPopup(null)
+    window.addEventListener('scroll', dismiss, true)
+    return () => window.removeEventListener('scroll', dismiss, true)
+  }, [selectionPopup])
+
   const allChapters = useMemo(
     () => stages.flatMap((s) => s.chapters),
     [stages]
@@ -186,13 +256,13 @@ export default function ChapterPage() {
         return (
           <motion.div
             key="learn"
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={reduce ? { duration: 0 } : { duration: 0.3, ease: EASE_OUT_EXPO }}
             className="tab-content-inner"
           >
-            <div className="markdown-content mb-6">
+            <div className="markdown-content mb-6" ref={markdownRef} onMouseUp={handleTextSelection}>
               <MarkdownView content={chapter.content} chapterId={chapter.id} onExperimentComplete={handleExperimentComplete} />
             </div>
             <ProgressPanel
@@ -227,11 +297,18 @@ export default function ChapterPage() {
           <motion.div
             key="animation"
             className="tab-content-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={reduce ? { duration: 0 } : { duration: 0.25, ease: EASE_OUT_EXPO }}
           >
+            {CHAPTER_ANIMATIONS[chapter.id] && (
+              <div className="featured-animation">
+                <h2>本章大屏动画</h2>
+                <p className="featured-animation-hint">播放 / 暂停 / 步进 / 重置 · 拖动滑块实验参数</p>
+                <AnimationLoader chapterId={chapter.id} />
+              </div>
+            )}
             <div className="animation-index">
               <h2>本章动画索引</h2>
               {chapterAnimations.map((animation) => (
@@ -257,10 +334,10 @@ export default function ChapterPage() {
         return (
           <motion.div
             key="results"
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={reduce ? { duration: 0 } : { duration: 0.3, ease: EASE_OUT_EXPO }}
           >
             <ResultsView
               chapterId={chapter.id}
@@ -348,6 +425,7 @@ export default function ChapterPage() {
                 <RunnerPanel
                   chapterId={chapter.id}
                   checkpoints={chapter.checkpoints}
+                  experimentAccepted={chapter.experiment_accepted}
                   onExperimentComplete={handleExperimentComplete}
                 />
               </div>
@@ -371,6 +449,24 @@ export default function ChapterPage() {
                 />
               </div>
             </div>
+
+            <div className={`runner-section-block ${aiOpen ? 'open' : ''}`}>
+              <button
+                className="runner-section-title w-full flex items-center gap-2 border-b-0 mb-0"
+                onClick={() => setAiOpen((v) => !v)}
+              >
+                <Sparkles size={14} />
+                <span>AI 助教</span>
+                <span className="ml-auto">{aiOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</span>
+              </button>
+              <div className={`runner-section-body ${aiOpen ? '' : 'collapsed'}`}>
+                <AiAssistantPanel
+                  chapterId={chapter.id}
+                  chapterTitle={chapter.title}
+                  explainRequest={explainRequest}
+                />
+              </div>
+            </div>
           </div>
         </aside>
       </motion.div>
@@ -386,18 +482,50 @@ export default function ChapterPage() {
         </button>
       )}
 
-      {selectedAnimation && (
-        <div className="animation-modal-overlay" onClick={() => setSelectedAnimation(null)}>
-          <div className="animation-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="animation-modal-close" onClick={() => setSelectedAnimation(null)}>
-              <X size={20} />
-            </button>
-            <div className="animation-modal-body">
-              <InlineCourseAnimation animationId={selectedAnimation} large />
-            </div>
-          </div>
-        </div>
+      {selectionPopup && (
+        <button
+          type="button"
+          className="selection-explain-btn"
+          style={{ left: selectionPopup.x, top: selectionPopup.y }}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={handleExplainSelection}
+        >
+          <Sparkles size={13} />
+          AI 解释
+        </button>
       )}
+
+      <AnimatePresence>
+        {selectedAnimation && (
+          <motion.div
+            key="overlay"
+            className="animation-modal-overlay"
+            onClick={() => setSelectedAnimation(null)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.2, ease: 'easeIn' } }}
+            transition={reduce ? { duration: 0 } : { duration: 0.25, ease: 'easeOut' }}
+          >
+            <motion.div
+              key="modal"
+              className="animation-modal"
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, y: 28, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16, scale: 0.98, transition: { duration: 0.2, ease: 'easeIn' } }}
+              /* 内容比背景晚 0.06s 入场：先见背景渐暗，再看内容上浮放大 */
+              transition={reduce ? { duration: 0 } : { duration: 0.34, ease: EASE_OUT_EXPO, delay: 0.06 }}
+            >
+              <button className="animation-modal-close" onClick={() => setSelectedAnimation(null)}>
+                <X size={20} />
+              </button>
+              <div className="animation-modal-body">
+                <InlineCourseAnimation animationId={selectedAnimation} large />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }

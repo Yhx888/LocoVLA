@@ -63,7 +63,7 @@ DEFAULT_INSTALL_PREFIX = "~/upkie-ros2-build/install"
 
 def _as_wsl_path(value: str) -> str:
     """同时接受 Windows 盘符路径和 WSL/POSIX 路径。"""
-    raw = os.path.expanduser(value.strip())
+    raw = str(Path(value.strip()).expanduser())
     match = re.match(r"^([A-Za-z]):[\\/](.*)$", raw)
     if match:
         suffix = match.group(2).replace("\\", "/")

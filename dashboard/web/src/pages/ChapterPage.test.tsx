@@ -10,10 +10,15 @@ vi.mock('../api/client', () => ({
   cancelRun: vi.fn(),
   connectRunEvents: vi.fn(() => () => {}),
   createRun: vi.fn(),
+  getAiStatus: vi.fn(async () => ({ configured: false, model: '' })),
+  saveAiConfig: vi.fn(),
+  AI_CONFIG_UPDATED_EVENT: 'ai-config-updated',
   getChapter: vi.fn(),
   getCourseSummary: vi.fn(),
   getRun: vi.fn(),
+  gradeAnswer: vi.fn(),
   listRuns: vi.fn(),
+  streamExplain: vi.fn(),
   updateProgress: vi.fn(),
 }));
 

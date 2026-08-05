@@ -1,0 +1,150 @@
+<title>Upkie 具身智能运动控制课程 v2：课程主页与能力地图</title>
+
+<callout background-color="light-blue" border-color="blue">
+  <p><b>课程目标：</b>帮助零基础学习者逐关建立大企业具身智能运动控制岗位所需的建模、控制、估计、学习控制、VLA、部署与诊断能力。是否达标只看可复现实验和作品集证据，不按阅读页数判定，也不承诺“学完必然入职”。</p>
+</callout>
+
+<h1>怎样使用这套课程</h1>
+<grid>
+  <column width-ratio="0.5">
+    <h2>学习方式</h2>
+    <ul>
+      <li>按能力关卡推进，可随时暂停和恢复。</li>
+      <li>先观察错误基线，再学习原理和实现。</li>
+      <li>每关保存测试、日志、图表或视频证据。</li>
+    </ul>
+  </column>
+  <column width-ratio="0.5">
+    <h2>完成判定</h2>
+    <ul>
+      <li>能解释假设、单位、适用范围和失效条件。</li>
+      <li>能复现固定 seed 的量化结果。</li>
+      <li>能定位一次故意注入的故障并完成复盘。</li>
+    </ul>
+  </column>
+</grid>
+
+<hr/>
+
+<h1>从零基础到岗位毕业项目</h1>
+<whiteboard type="mermaid">
+mindmap
+  root((岗位能力证据))
+    0 数学与工具
+      Python 与 Git
+      线性代数与微积分
+      概率与信号
+    1 机器人仿真
+      自由基座
+      接触与执行器
+      模型审计
+    2 经典控制
+      PID
+      状态空间与 LQR
+      速度偏航高度
+    3 状态估计与优化
+      滤波与 Kalman EKF
+      参数辨识
+      QP 与 MPC
+    4 学习控制
+      Gymnasium 与 PPO
+      域随机化
+      残差 RL 与 Sim2Real
+    5 应用型 VLA
+      RGB-D 与语言任务
+      示范与行为克隆
+      安全闭环评估
+    6 工程部署
+      C++ Eigen CMake
+      ROS2 与实时循环
+      日志测试故障恢复
+    7 岗位毕业项目
+      系统设计
+      八类门槛
+      作品集答辩
+    H 硬件选修
+      ESP32 FOC 编码器 IMU
+      供电与急停
+      实机 Sim2Real
+</whiteboard>
+
+<table>
+  <thead><tr><th background-color="light-gray">阶段</th><th background-color="light-gray">章节</th><th background-color="light-gray">阶段项目</th><th background-color="light-gray">当前状态</th></tr></thead>
+  <tbody>
+    <tr><td>0 数学与工具</td><td>00-05</td><td>倒立摆手算与代码验证</td><td>实现与定向回归就绪，fresh 全量待验</td></tr>
+    <tr><td>1 机器人仿真</td><td>06-11</td><td>物理正确的 Upkie 数字样机</td><td>实现与定向回归就绪，fresh 全量待验</td></tr>
+    <tr><td>2 经典控制</td><td>12-18</td><td>PD、LQR 与速度控制对比</td><td>实现与定向回归就绪，fresh 全量待验</td></tr>
+    <tr><td>3 状态估计与优化</td><td>19-24</td><td>带噪估计与受约束 MPC</td><td>EKF/UKF、KKT 与轨迹优化已接入，fresh 全量待验</td></tr>
+    <tr><td>4 学习控制</td><td>25-31</td><td>可复现 PPO 与残差控制基准</td><td>PPO、随机化与残差基线已接入，fresh 全量待验</td></tr>
+    <tr><td>5 应用型 VLA</td><td>32-37</td><td>三色视觉语言导航与停车</td><td>BC-VLA 与安全闭环已接入，fresh 全量待验</td></tr>
+    <tr><td>6 工程部署</td><td>38-43</td><td>C++ 与 ROS2 控制链路</td><td>代码与测试就绪，WSL2/ROS2 fresh 运行待验</td></tr>
+    <tr><td>7 岗位毕业项目</td><td>44-47</td><td>完整系统与岗位级作品集</td><td>工程入口就绪，仓库外部人工答辩未完成</td></tr>
+    <tr><td>H 硬件选修</td><td>H01-H10</td><td>桌面轮足平衡机器人</td><td>本轮按用户要求排除，不阻断必修验收</td></tr>
+  </tbody>
+</table>
+
+<hr/>
+
+<h1>当前真实证据</h1>
+<callout background-color="light-yellow" border-color="yellow">
+  <p><b>重新验收状态：</b>必修 00-47 的实现、教程与定向回归已大幅补齐，但最终 fresh 全链路、完整 pytest、C++/CTest、WSL2/ROS2 和飞书逐章回读尚未全部完成。旧的 188 passed、81.53% 和自动毕业 8/8 结论已作废，不能继续引用。</p>
+  <p><b>完成判定边界：</b>本仓库可以核验课程工程是否具备可复现实验、测试和作品集入口，不能用自动代码评审替代真人答辩，也不能签发学习者毕业结论。当前稳定边界为 <code>learner_graduated=false</code>；工程证据齐备不等于学习者毕业。</p>
+</callout>
+<callout background-color="light-green" border-color="green">
+  <p><b>已验证物理底座：</b>自由基座模型为 nq=13、nv=12、nu=6；腿部为位置指令，左右轮为限幅 +/-1 N*m 的力矩指令；无控制时机器人能够真实位移和跌倒。</p>
+</callout>
+
+<table>
+  <thead><tr><th background-color="light-gray">VLA 固定测试集指标</th><th background-color="light-gray">seed=0 结果</th><th background-color="light-gray">方向</th></tr></thead>
+  <tbody>
+    <tr><td>成功率</td><td>100%</td><td>越高越好，验收阈值 &gt;= 80%</td></tr>
+    <tr><td>碰撞率</td><td>0%</td><td>越低越好</td></tr>
+    <tr><td>平均停车误差</td><td>0.038104 m</td><td>越低越好</td></tr>
+    <tr><td>最大俯仰角</td><td>0.104428 rad</td><td>越低越安全</td></tr>
+    <tr><td>平均推理延迟</td><td>0.586814 ms</td><td>越低越好</td></tr>
+    <tr><td>未见组合成功率</td><td>100%</td><td>越高越好</td></tr>
+  </tbody>
+</table>
+<p>原始报告：<code>outputs/logs/vla_evaluation.json</code>。结果只代表固定场景与固定测试集，不外推为真实开放环境能力。</p>
+
+<hr/>
+
+<h1>本地实验入口</h1>
+<pre lang="powershell"><code>.\.venv\Scripts\Activate.ps1
+python scripts/01_check_model.py
+python scripts/run_rl_lab.py --chapter 27
+python scripts/run_rl_lab.py --chapter 31
+python scripts/course_checkpoint.py --chapter 27
+python scripts/course_checkpoint.py --chapter 31
+python scripts/run_engineering_lab.py --chapter 38
+python scripts/course_checkpoint.py --chapter 38
+python scripts/run_engineering_lab.py --chapter 39
+python scripts/course_checkpoint.py --chapter 39
+pytest
+streamlit run dashboard/app.py</code></pre>
+<p>本地仪表盘当前地址：<code>http://localhost:8502</code>。仪表盘负责实验反馈、曲线、视频、关卡状态和作品集索引；飞书负责教科书正文与课程导航。</p>
+
+<hr/>
+
+<h1>建设边界</h1>
+<callout background-color="light-yellow" border-color="yellow">
+  <p><b>仍在收口：</b>必修 00-47 需要从空输出目录完成最终全链路验收，飞书 00-47 正文需要覆盖/创建并逐章回读。硬件选修 H01-H10 已按用户要求排除，不属于本轮阻断项。</p>
+</callout>
+<callout background-color="light-red" border-color="red">
+  <p><b>禁止虚构：</b>任何章节在代码、测试和可视化证据未齐全前都保持“规划中”；失败案例必须保留，不能通过放宽阈值或修改日志包装成通过。</p>
+</callout>
+
+<hr/>
+
+<h1>事实来源与版本</h1>
+<ul>
+  <li>机器人物理配置 v2：<code>configs/robot/upkie.json</code></li>
+  <li>58 关课程清单：<code>configs/course/manifest.json</code></li>
+  <li>统一实验结果：<code>src/upkie_mujoco_course/course/results.py</code></li>
+  <li>VLA 数据集：<code>src/upkie_mujoco_course/vla/contracts.py</code></li>
+  <li>硬件遥测：<code>src/upkie_mujoco_course/hardware/telemetry.py</code></li>
+  <li>本页同步基线：<code>2026-07-18 重新验收进行中</code></li>
+</ul>
+<checkbox done="true">课程结构与真实命令已写入本页</checkbox>
+<checkbox done="true">VLA 指标已与当前第 37 关结构化结果核对</checkbox>
+<checkbox done="false">后续每章同步后继续回读公式、命令、commit 与画板</checkbox>
