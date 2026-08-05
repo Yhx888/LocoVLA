@@ -27,8 +27,7 @@
 │   └── robot/        # 机器人配置（upkie.json）
 ├── docs/             # 文档
 │   ├── analysis/     # 项目分析（课程差距、问题、优化总结等）
-│   ├── guides/       # 操作指南（依赖安装、飞书同步、Git 操作等）
-│   └── feishu/       # 飞书同步版教程（00-10）
+│   └── guides/       # 操作指南（依赖安装、Git 操作等）
 ├── outputs/          # 输出（不提交 Git 的工作产物）
 │   ├── checkpoints/  # 训练模型
 │   ├── experiments/  # 实验证据（meta.json + 日志 + 结果）
