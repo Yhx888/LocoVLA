@@ -1,4 +1,4 @@
-# 更新日志
+﻿# 更新日志
 
 ## 2026-07-17
 
@@ -18,7 +18,6 @@
 - **第 40 关检查点断裂修复**：补齐 TEST_TARGETS、入口脚本和证据，实测通过。
 - **第 45 关检查点断裂修复**：三重证据齐全，实测通过。
 - **manifest.py 入口路由修正**：40-47 关指向正确的独立脚本。
-- **飞书 v0.4.0 同步完成**：`lark-cli docs +update --command overwrite --as user`，回读确认。
 - **仪表盘 Playwright 截图更新**：桌面 + 移动端（2026-07-16）。
 - **WSL2 + ROS2 Jazzy + colcon 已安装**：构建产物在 `~/upkie-ros2-build/`；首次在 `/mnt/c/...` 直接 `colcon build` 失败的残留位于 `ros2_ws/{build,install,log}`，不能作为通过证据。
 
